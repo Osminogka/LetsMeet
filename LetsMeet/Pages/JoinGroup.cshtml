@@ -1,0 +1,71 @@
+﻿@page "/joingroup"
+@model JoinGroupModel
+
+<div>
+         <label>Provide group name</label>
+         <input class="form-control" asp-for="GroupName" />
+</div>
+
+@foreach(string u in Model.GroupNames)
+{
+    <div class="card card-outline-primary m-1 p-1">
+        <div class="bg-faded p-1">
+            <h4>
+                @u
+            </h4>
+        </div>
+
+        <form id="@u" method="post">
+            <input type="hidden" asp-for="@Model.GroupName" value="@u"/>
+            <span class="card-text p-1">
+                <button type="submit" class="btn btn-success btn-sm pull-right" style="float:right">
+                    Join Group
+                </button>
+            </span>
+        </form>
+    </div>
+}
+
+@functions{
+
+    public class JoinGroupModel: UserPageModel
+    {
+        public DataContext ContextData;
+        public HttpClient Http;
+        public UserManager<IdentityUser> UserManager;
+
+        public JoinGroupModel(DataContext ctx, IHttpClientFactory httpClientFactory,UserManager<IdentityUser> userManager)
+        {
+            UserManager = userManager;
+            ContextData = ctx;
+            Http = httpClientFactory.CreateClient("MainClient");
+        }
+
+        public List<string> GroupNames = new List<string>();
+
+        [BindProperty]
+        public string GroupName { get; set; } = String.Empty;
+
+        public IdentityUser LocalUser;
+
+        public async Task OnGetAsync()
+        {
+            GroupNames = await Http.GetFromJsonAsync<List<string>>($"/api/groupinfo") ?? new List<string>();
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {   
+            IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            Http.DefaultRequestHeaders.Add("GroupName", GroupName);
+            Http.DefaultRequestHeaders.Add("LocalUserId", user.Id);
+
+            HttpResponseMessage response = await Http.PostAsync($"/api/joingroup", null);
+            if (response.IsSuccessStatusCode)
+                return Redirect("/mainpage");
+
+
+            
+            return Page();
+        }
+    }
+}

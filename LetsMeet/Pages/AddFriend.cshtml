@@ -1,0 +1,78 @@
+﻿@page "/addfriends"
+@model AddFriendModel
+
+
+<div>
+         <label>Provide friend name</label>
+         <input class="form-control" asp-for="UserName" />
+</div>
+
+@foreach(string u in Model.UsersNames)
+{
+    <div class="card card-outline-primary m-1 p-1">
+        <div class="bg-faded p-1">
+            <h4>
+                @u
+            </h4>
+        </div>
+
+        <form id="@u" method="post">
+            <input type="hidden" asp-for="@Model.FriendUserName" value="@u"/>
+            <input type="hidden" name="MainUserId" value="@Model.User.Id" />
+            <span class="card-text p-1">
+                <button type="submit" class="btn btn-success btn-sm pull-right" style="float:right">
+                    Add To Friends
+                </button>
+            </span>
+        </form>
+    </div>
+}
+
+
+@functions{
+
+    public class AddFriendModel: UserPageModel
+    {
+        public IdentityUser User;
+        public UserManager<IdentityUser> UserManager;
+        public DataContext ContextData;
+        public UserContext ContextUser;
+        public HttpClient Http;
+
+
+        public List<string> UsersNames = new List<string>();
+
+        [BindProperty]
+        public string UserName { get; set; } = String.Empty;
+
+        [BindProperty]
+        public string FriendUserName { get; set; } = string.Empty;
+
+        public AddFriendModel(UserManager<IdentityUser> userManager, DataContext ctx, UserContext ctx2, IHttpClientFactory httpClientFactory)
+        {
+            UserManager = userManager;
+            ContextData = ctx;
+            ContextUser = ctx2;
+            Http = httpClientFactory.CreateClient("MainClient");
+        }
+
+        public async Task OnGetAsync()
+        {
+            User = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            UsersNames = ContextUser.Users.Select(obj => obj.UserName).Where(obj => obj != User.UserName).ToList(); 
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {   
+            IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            User = user;
+            Http.DefaultRequestHeaders.Add("LocalUserId", (string)user.Id);
+            Http.DefaultRequestHeaders.Add("FriendUserName", FriendUserName);
+
+            HttpResponseMessage response = await Http.PostAsync($"/api/addfriend", null);
+            if (response.IsSuccessStatusCode)
+                return Redirect("/mainpage");
+            return Page();
+        }
+    }
+}

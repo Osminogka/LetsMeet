@@ -1,0 +1,180 @@
+﻿@page "/mainpage"
+@model MainTableModel
+
+
+
+<div>
+    <table class="table table-sm table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>GroupName</th>
+        </tr>
+    </thead>
+    <tbody>
+            @if(Model.GroupList.Count() == 0)
+            {
+                <tr><th>No groups</th></tr>
+            }
+            else
+            {
+                @foreach(string s in Model.GroupList)
+                {
+                    <tr>
+                        <td>@s</td>
+                    </tr>
+                }
+            }
+        </tbody>
+</table>
+</div>
+
+<div>
+    <a class="btn btn-primary mt-2" href="creategroup">Create Group</a>
+    <a class="btn btn-primary mt-2" href="joingroup">Join Group</a>
+</div>
+
+
+<div class="mt-2">
+    <h2>Friend list</h2>
+    @if(Model.FriendList.Count() == 0)
+    {
+        <h1>No Friends</h1>
+    }
+    else
+    {
+        @foreach(string s in Model.FriendList)
+        {
+            @s
+            <form method="post">
+                <button type="submit" class="btn btn-info  btn-sm" asp-page-handler="GetInfoAboutFriend" asp-route-arg1="@s">Get Info</button>
+                <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RemoveFriend" asp-route-arg1="@s">Remove</button>
+            </form>
+        }
+    }
+</div>
+
+<div>
+    <a class="btn btn-primary mt-2" href="addfriends">Add Friends</a>
+</div>
+
+<div class="mt-2">
+    <h2 class="alert-info">Invite List</h2>
+            @if(Model.InviteList.Count() == 0)
+            {
+                <h1>No Invites</h1>
+            }
+            else
+            {
+                @foreach(string s in Model.InviteList)
+                {
+                        @s
+                        <form method="post">
+                            <button type="submit" class="btn btn-info btn-sm" asp-page-handler="AddFriend" asp-route-arg1="@s">Add</button>
+                            <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RejectFriend" asp-route-arg1="@s">Reject</button>
+                        </form>
+                }
+            }
+</div>
+
+<div>
+    <a class="btn btn-secondary mt-2" href="logout">Log Out</a>
+</div>
+
+@functions{
+
+    public class MainTableModel: UserPageModel
+    {
+        public UserManager<IdentityUser> UserManager;
+        public HttpClient Http;
+        public MonthBase Month;
+        public DataContext Context;
+
+        public MainTableModel(UserManager<IdentityUser> usrManager, IHttpClientFactory httpClientFactory, DataContext ctx)
+        {
+            UserManager = usrManager;
+            Context = ctx;
+            Http = httpClientFactory.CreateClient("MainClient");
+            Month = new MonthBase()
+            {
+                MonthNumber = DateTime.Today.Month,
+                DayAmount = MonthBase.monthDays[DateTime.Now.ToString("MMMM")],
+                Meetings = new List<Record>()
+            };
+        }
+
+
+        public List<string> GroupList = new List<string>();
+        public List<string> FriendListRaw = new List<string>();
+        public List<string> FriendList = new List<string>();
+        public List<FriendInvite> InviteListRaw = new List<FriendInvite>();
+        public List<string> InviteList = new List<string>();
+
+        public async Task OnGetAsync()
+        {
+            IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            Http.DefaultRequestHeaders.Add("UserId", (string)user.Id);
+
+            GroupList = await Http.GetFromJsonAsync<List<string>>($"/api/group") ?? new List<string>();
+            FriendListRaw = await Http.GetFromJsonAsync<List<string>>($"/api/friends") ?? new List<string>();
+
+            Http.DefaultRequestHeaders.Add("UserName", user.UserName);
+            InviteListRaw = await Http.GetFromJsonAsync<List<FriendInvite>>($"/api/invite") ?? new List<FriendInvite>();
+
+            foreach(string id in FriendListRaw)
+            {
+                IdentityUser tempUser = await UserManager.FindByIdAsync(id);
+                FriendList.Add(tempUser.UserName);
+            }
+
+            foreach(FriendInvite friend in InviteListRaw)
+            {
+                string id = friend.MainUserId;
+                IdentityUser userTemp = await UserManager.FindByIdAsync(id);
+                InviteList.Add(userTemp.UserName);
+            }
+        }
+
+        public async Task<IActionResult> OnPostAddFriendAsync(string arg1)
+        {
+            IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+            Http.DefaultRequestHeaders.Add("FriendUserName", arg1);
+            Http.DefaultRequestHeaders.Add("LocalUserId", tempUserLocal.Id);
+            Http.DefaultRequestHeaders.Add("Inviteinfo", "accept");
+            HttpResponseMessage response = await Http.PostAsync($"/api/acceptinvite", null);
+
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostRejectFriendAsync(string arg1)
+        {
+            IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+            Http.DefaultRequestHeaders.Add("FriendUserName", arg1);
+            Http.DefaultRequestHeaders.Add("LocalUserId", tempUserLocal.Id);
+            Http.DefaultRequestHeaders.Add("Inviteinfo", "reject");
+            HttpResponseMessage response = await Http.PostAsync($"/api/acceptinvite", null);
+
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostRemoveFriendAsync(string arg1)
+        {
+            IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+            Http.DefaultRequestHeaders.Add("FriendUserName", arg1);
+            Http.DefaultRequestHeaders.Add("LocalUserId", tempUserLocal.Id);
+            Http.DefaultRequestHeaders.Add("Inviteinfo", "remove");
+            HttpResponseMessage response = await Http.PostAsync($"/api/acceptinvite", null);
+
+            return RedirectToPage();
+        }
+        
+        public async Task<IActionResult> OnPostGetInfoAboutFriendAsync(string arg1)
+        {
+            
+
+            return RedirectToPage();
+        }
+    }
+}

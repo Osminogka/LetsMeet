@@ -1,0 +1,68 @@
+﻿@page "/register"
+@model RegisterModel
+
+<h5 class="bg-primary text-white text-center p-2">Register</h5>
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label>User Name</label>
+        <input name="UserName" class="form-control" value="@Model.UserName" />
+    </div>
+    <div class="form-group">
+        <label>Email</label>
+        <input name="Email" class="form-control" value="@Model.Email" />
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <input name="Password" class="form-control" value="@Model.Password" />
+    </div>
+    <div class="py-2">
+        <button type="submit" class="btn btn-primary">Create</button>
+    </div>
+</form>
+
+@functions{
+
+    public class RegisterModel: PageModel
+    {
+        public UserManager<IdentityUser> UserManager;
+        public UserContext context;
+
+        public RegisterModel(UserManager<IdentityUser> usrManager, UserContext ctx)
+        {
+            UserManager = usrManager;
+            context = ctx;
+        }
+
+        [BindProperty]
+        public string UserName { get; set; } = string.Empty;
+
+        [BindProperty]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [BindProperty]
+        public string Password { get; set; } = string.Empty;
+
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (ModelState.IsValid)
+            {
+                IdentityUser user = new IdentityUser { UserName = UserName, Email = Email };
+                IdentityResult result = await UserManager.CreateAsync(user, Password);
+                if (result.Succeeded)
+                {
+                    await UserManager.AddToRoleAsync(user, "User");
+                    LetsMeet.Models.User userrecord = new User { UserName = UserName };
+                    await context.AddAsync(userrecord);
+                    await context.SaveChangesAsync();
+                    return Redirect("/mainpage");
+                }
+                foreach (IdentityError err in result.Errors)
+                    ModelState.AddModelError("", err.Description);
+            }
+            return Page();
+        }
+    }
+}
