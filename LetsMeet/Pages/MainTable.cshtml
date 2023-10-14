@@ -1,4 +1,4 @@
-﻿@page "/mainpage"
+﻿@page "/"
 @model MainTableModel
 
 
@@ -47,7 +47,7 @@
             @s
             <form method="post">
                 <button type="submit" class="btn btn-info  btn-sm" asp-page-handler="GetInfoAboutFriend" asp-route-arg1="@s">Get Info</button>
-                <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RemoveFriend" asp-route-arg1="@s">Remove</button>
+                <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RemoveFriend" asp-route-FriendName="@s">Remove</button>
             </form>
         }
     }
@@ -65,12 +65,12 @@
             }
             else
             {
-                @foreach(string s in Model.InviteList)
+                @foreach(FriendInvite s in Model.InviteListRaw)
                 {
                         @s
                         <form method="post">
-                            <button type="submit" class="btn btn-info btn-sm" asp-page-handler="AddFriend" asp-route-arg1="@s">Add</button>
-                            <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RejectFriend" asp-route-arg1="@s">Reject</button>
+                            <button type="submit" class="btn btn-info btn-sm" asp-page-handler="AddFriend" asp-route-invite="@s">Add</button>
+                            <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RejectFriend" asp-route-invite="@s">Reject</button>
                         </form>
                 }
             }
@@ -93,7 +93,6 @@
         {
             UserManager = usrManager;
             Context = ctx;
-            Http = httpClientFactory.CreateClient("MainClient");
             Month = new MonthBase()
             {
                 MonthNumber = DateTime.Today.Month,
@@ -112,60 +111,81 @@
         public async Task OnGetAsync()
         {
             IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            Http.DefaultRequestHeaders.Add("UserId", (string)user.Id);
 
-            GroupList = await Http.GetFromJsonAsync<List<string>>($"/api/group") ?? new List<string>();
-            FriendListRaw = await Http.GetFromJsonAsync<List<string>>($"/api/friends") ?? new List<string>();
+            //GroupList
+            GroupList = Context.GroupRecords.Where(obj => obj.UserIdThatBelongsToGroup == user.Id).Select(obj => obj.GroupNameThatRecordBelong).ToList();
 
-            Http.DefaultRequestHeaders.Add("UserName", user.UserName);
-            InviteListRaw = await Http.GetFromJsonAsync<List<FriendInvite>>($"/api/invite") ?? new List<FriendInvite>();
+            //FriendList
+            FriendListRaw = Context.userFriendLists.Where(obj => obj.MainUserId == user.Id || obj.FriendUserId == user.Id).
+                Select(obj => obj.FriendUserId == user.Id ? obj.MainUserId : obj.FriendUserId).ToList();
 
-            foreach(string id in FriendListRaw)
+            foreach (string id in FriendListRaw)
             {
                 IdentityUser tempUser = await UserManager.FindByIdAsync(id);
                 FriendList.Add(tempUser.UserName);
             }
 
-            foreach(FriendInvite friend in InviteListRaw)
+            //InviteList
+            InviteListRaw = Context.InviteList.Where(obj => obj.FriendUserName == user.Id).ToList();
+
+            foreach (FriendInvite friend in InviteListRaw)
             {
                 string id = friend.MainUserId;
                 IdentityUser userTemp = await UserManager.FindByIdAsync(id);
                 InviteList.Add(userTemp.UserName);
             }
+
         }
 
-        public async Task<IActionResult> OnPostAddFriendAsync(string arg1)
+        public async Task<IActionResult> OnPostAddFriendAsync(FriendInvite invite)
         {
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
-            Http.DefaultRequestHeaders.Add("FriendUserName", arg1);
-            Http.DefaultRequestHeaders.Add("LocalUserId", tempUserLocal.Id);
-            Http.DefaultRequestHeaders.Add("Inviteinfo", "accept");
-            HttpResponseMessage response = await Http.PostAsync($"/api/acceptinvite", null);
+            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserId == invite.FriendUserName && obj.FriendUserName == tempUserLocal.UserName);
+
+            if (!checkIfAnyInvites.Any())
+                return StatusCode(400);
+
+            Context.InviteList.Remove(invite);
+
+            UserFriendList tempFriendRecord = new UserFriendList
+            {
+                    MainUserId = invite.MainUserId,
+                    FriendUserId = tempUserLocal.Id
+            };
+            await Context.userFriendLists.AddAsync(tempFriendRecord);
+
+            await Context.SaveChangesAsync();
 
             return RedirectToPage();
         }
 
-        public async Task<IActionResult> OnPostRejectFriendAsync(string arg1)
+        public async Task<IActionResult> OnPostRejectFriendAsync(FriendInvite invite)
         {
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
-            Http.DefaultRequestHeaders.Add("FriendUserName", arg1);
-            Http.DefaultRequestHeaders.Add("LocalUserId", tempUserLocal.Id);
-            Http.DefaultRequestHeaders.Add("Inviteinfo", "reject");
-            HttpResponseMessage response = await Http.PostAsync($"/api/acceptinvite", null);
+            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserId == invite.FriendUserName && obj.FriendUserName == tempUserLocal.UserName);
+
+            if (!checkIfAnyInvites.Any())
+                return StatusCode(400);
+
+            Context.InviteList.Remove(invite);
+
+            await Context.SaveChangesAsync();
 
             return RedirectToPage();
         }
 
-        public async Task<IActionResult> OnPostRemoveFriendAsync(string arg1)
+        public async Task<IActionResult> OnPostRemoveFriendAsync(string FriendName)
         {
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            IdentityUser tempUserFriend = await UserManager.FindByNameAsync(FriendName);
 
-            Http.DefaultRequestHeaders.Add("FriendUserName", arg1);
-            Http.DefaultRequestHeaders.Add("LocalUserId", tempUserLocal.Id);
-            Http.DefaultRequestHeaders.Add("Inviteinfo", "remove");
-            HttpResponseMessage response = await Http.PostAsync($"/api/acceptinvite", null);
+            UserFriendList tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserId == tempUserLocal.Id && obj.FriendUserId == tempUserFriend.Id)
+                       || (obj.MainUserId == tempUserFriend.Id && obj.FriendUserId == tempUserLocal.Id)).First();
+
+            Context.userFriendLists.Remove(tempRecord);
+            await Context.SaveChangesAsync();
 
             return RedirectToPage();
         }

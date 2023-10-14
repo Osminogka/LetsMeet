@@ -66,7 +66,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapRazorPages();
 app.MapBlazorHub();
-app.MapGet("/", () => "Hello world");
 
 IdentitySeedData.CreateRole(app.Services, app.Configuration);
 

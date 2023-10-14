@@ -53,7 +53,7 @@
                     await signInManager.PasswordSignInAsync(UserName, Password, false, false);
 
                 if (result.Succeeded)
-                    return Redirect(ReturnUrl ?? "/mainpage");
+                    return Redirect(ReturnUrl ?? "/");
                 ModelState.AddModelError("", "Invalid username or password");
             }
             return Page();
