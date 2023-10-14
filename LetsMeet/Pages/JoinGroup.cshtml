@@ -61,7 +61,7 @@
 
             HttpResponseMessage response = await Http.PostAsync($"/api/joingroup", null);
             if (response.IsSuccessStatusCode)
-                return Redirect("/mainpage");
+                return Redirect("/");
 
 
             

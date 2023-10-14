@@ -57,7 +57,7 @@
                     LetsMeet.Models.User userrecord = new User { UserName = UserName };
                     await context.AddAsync(userrecord);
                     await context.SaveChangesAsync();
-                    return Redirect("/mainpage");
+                    return Redirect("/");
                 }
                 foreach (IdentityError err in result.Errors)
                     ModelState.AddModelError("", err.Description);

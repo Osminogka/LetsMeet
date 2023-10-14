@@ -71,7 +71,7 @@
 
             HttpResponseMessage response = await Http.PostAsync($"/api/addfriend", null);
             if (response.IsSuccessStatusCode)
-                return Redirect("/mainpage");
+                return Redirect("/");
             return Page();
         }
     }

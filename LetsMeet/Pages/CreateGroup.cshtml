@@ -44,7 +44,7 @@
             Http.DefaultRequestHeaders.Add("GroupName", GroupName);
             HttpResponseMessage response = await Http.PostAsync($"/api/creategroup", null);
             if (response.IsSuccessStatusCode)
-                return Redirect("/mainpage");
+                return Redirect("/");
             return Page();
         }
     }
