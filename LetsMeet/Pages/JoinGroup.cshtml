@@ -30,15 +30,13 @@
 
     public class JoinGroupModel: UserPageModel
     {
-        public DataContext ContextData;
-        public HttpClient Http;
+        public DataContext Context;
         public UserManager<IdentityUser> UserManager;
 
         public JoinGroupModel(DataContext ctx, IHttpClientFactory httpClientFactory,UserManager<IdentityUser> userManager)
         {
             UserManager = userManager;
-            ContextData = ctx;
-            Http = httpClientFactory.CreateClient("MainClient");
+            Context = ctx;
         }
 
         public List<string> GroupNames = new List<string>();
@@ -50,22 +48,38 @@
 
         public async Task OnGetAsync()
         {
-            GroupNames = await Http.GetFromJsonAsync<List<string>>($"/api/groupinfo") ?? new List<string>();
+            IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+            var GroupList = Context.Groups.Select(obj => obj.GroupName);
+            foreach(string tempG in GroupList)
+            {
+                var checkIfBelongTo = Context.GroupRecords.SingleOrDefault(obj => obj.UserIdThatBelongsToGroup == tempUserLocal.Id && obj.GroupNameThatRecordBelong == tempG);
+                if (checkIfBelongTo != null)
+                    GroupList.ToList().Remove(checkIfBelongTo.GroupNameThatRecordBelong);
+            }
+
+            GroupNames = GroupList.ToList();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {   
-            IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            Http.DefaultRequestHeaders.Add("GroupName", GroupName);
-            Http.DefaultRequestHeaders.Add("LocalUserId", user.Id);
+            IdentityUser TempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
-            HttpResponseMessage response = await Http.PostAsync($"/api/joingroup", null);
-            if (response.IsSuccessStatusCode)
-                return Redirect("/");
+            GroupRecords? check = Context.GroupRecords.SingleOrDefault(obj => obj.GroupNameThatRecordBelong == GroupName && obj.UserIdThatBelongsToGroup == TempUserLocal.Id);
 
+            if (check != null)
+                return StatusCode(400);
 
-            
-            return Page();
+            GroupRecords temporaryGroupRecord = new GroupRecords
+            {
+                UserIdThatBelongsToGroup = TempUserLocal.Id,
+                GroupNameThatRecordBelong = GroupName
+            };
+
+            await Context.GroupRecords.AddAsync(temporaryGroupRecord);
+            await Context.SaveChangesAsync();
+
+            return Redirect("~/");
         }
     }
 }

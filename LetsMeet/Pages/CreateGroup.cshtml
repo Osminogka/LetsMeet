@@ -19,13 +19,11 @@
         public IdentityUser User;
         public UserManager<IdentityUser> UserManager;
         public DataContext Context;
-        public HttpClient Http;
 
         public CreateGroupModel(UserManager<IdentityUser> userManager, DataContext ctx, IHttpClientFactory httpClientFactory)
         {
             UserManager = userManager;
             Context = ctx;
-            Http = httpClientFactory.CreateClient("MainClient");
         }
 
         public async Task OnGetAsync()
@@ -38,14 +36,30 @@
 
         public async Task<IActionResult> OnPostAsync()
         {   
-            IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            User = user;
-            Http.DefaultRequestHeaders.Add("UserId", (string)user.Id);
-            Http.DefaultRequestHeaders.Add("GroupName", GroupName);
-            HttpResponseMessage response = await Http.PostAsync($"/api/creategroup", null);
-            if (response.IsSuccessStatusCode)
-                return Redirect("/");
-            return Page();
+            IdentityUser TempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            var GroupTest = Context.Groups.SingleOrDefault(g => g.GroupName == GroupName);
+
+            if (GroupTest != null)
+                return StatusCode(400);
+
+            Group temporaryGroupObject = new Group
+            {
+                CreatorId = TempUserLocal.Id,
+                GroupName = GroupName
+            };
+
+            GroupRecords temporaryGroupRecord = new GroupRecords
+            {
+                UserIdThatBelongsToGroup = TempUserLocal.Id,
+                GroupNameThatRecordBelong = GroupName
+            };
+
+            await Context.Groups.AddAsync(temporaryGroupObject);
+            await Context.GroupRecords.AddAsync(temporaryGroupRecord);
+
+            await Context.SaveChangesAsync();
+
+            return Redirect("~/");
         }
     }
 }

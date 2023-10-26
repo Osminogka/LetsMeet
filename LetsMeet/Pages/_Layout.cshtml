@@ -4,6 +4,113 @@
     <head>
         <title>@ViewBag.Title</title>
         <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+        <meta charset="UTF-8">
+        <title>My Social Network</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+                margin: 0; /* Remove default margin */
+                padding: 0;
+            }
+            header {
+                background-color: #3498db;
+                color: #fff;
+                text-align: center;
+                padding: 20px 0;
+            }
+            .container {
+            display: flex;
+            justify-content: space-between;
+            }
+            .left {
+            float: left;
+            width: 40%; /* Adjust the width as needed */
+        }
+        .right {
+            margin-left: 5%; /* Adjust the width value plus any desired spacing */
+        }
+            h1 {
+                color: #333;
+            }
+            .section {
+                margin-top: 20px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                background-color: #fff;
+            }
+            .list {
+                list-style: none;
+                padding: 0;
+            }
+            .list-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid #eee;
+            }
+            .list-item:last-child {
+                border-bottom: none;
+            }
+            .list-item .name {
+                font-weight: bold;
+            }
+            .group-list {
+                font-weight: bold;
+                margin-top: 10px;
+            }
+            .btn {
+                background-color: #3498db;
+                color: #fff;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+            .btn.accept {
+                background-color: #2ecc71;
+            }
+            /* Left-align content and reduce font size */
+            .section {
+                text-align: left;
+            }
+            .list-item {
+                font-size: 14px;
+            }
+            .group-list {
+                font-size: 14px;
+            }
+            table {
+            border-collapse: collapse;
+            width: auto; /* Adjust the table width as needed */
+            font-size: 50px; /* Adjust the font size to make the numbers larger */
+            }
+            td {
+                border: 1px solid #ccc;
+                padding: 10px;
+                text-align: center;
+            }
+             .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #3498db;
+            padding: 10px;
+            }
+
+            .center-header {
+                text-align: center;
+                flex: 1;
+            }
+
+            .left-link {
+                text-decoration: none;
+                color: white;
+                margin-left: 20px;
+            }
+        </style>
     </head>
     <body>
         <div class="m-2">
