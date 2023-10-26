@@ -1,91 +1,119 @@
 ﻿@page "/"
 @model MainTableModel
 
+<header>
+    <div class="header-container">
+        <h1 class="center-header">Let's meet!</h1>
+        <a class="left-link right-header btn btn-danger" href="logout">Log Out</a>
+    </div>
+</header>
 
 
-<div>
-    <table class="table table-sm table-striped table-bordered">
-    <thead>
-        <tr>
-            <th>GroupName</th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="container">
+    <div class="right mt-4">
+        <h2>Your Friends</h2>
+        <div class="section">
+            <ul class="list">
+                @if(Model.FriendList.Count() == 0)
+                {
+                    <h1>No Friends</h1>
+                }
+                else
+                {
+                    @foreach(string s in Model.FriendList)
+                    {
+                        @s
+                        <div class="mt-2">
+                            <form method="post">
+                                <button type="submit" class="btn btn-info  btn-sm" asp-page-handler="GetInfoAboutFriend" asp-route-arg1="@s">Get Info</button>
+                                <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RemoveFriend" asp-route-FriendName="@s">Remove</button>
+                            </form>
+                        </div>
+                    }
+                }
+            </ul>
+        </div>
+        <a class="btn btn-primary mt-2" href="addfriends">Add Friends</a>
+
+        <h2 class="mt-3">Your Groups</h2>
+        <div class="section">
             @if(Model.GroupList.Count() == 0)
             {
-                <tr><th>No groups</th></tr>
+                    <ul class="list group-list">
+                        <li class="list-item">No groups</li>
+                    </ul>
             }
             else
             {
                 @foreach(string s in Model.GroupList)
                 {
-                    <tr>
-                        <td>@s</td>
-                    </tr>
+                    <ul class="list group-list">
+                        <li class="list-item">@s</li>
+                        <form method="post">
+                            <button type="submit" class="btn btn-info  btn-sm" asp-page-handler="LeaveGroup" asp-route-groupname="@s">Leave</button>
+                        </form>
+                    </ul>
                 }
             }
-        </tbody>
-</table>
-</div>
+        </div>
+        <a class="btn btn-primary mt-2" href="creategroup">Create Group</a>
+        <a class="btn btn-primary mt-2" href="joingroup">Join Group</a>
 
-<div>
-    <a class="btn btn-primary mt-2" href="creategroup">Create Group</a>
-    <a class="btn btn-primary mt-2" href="joingroup">Join Group</a>
-</div>
-
-
-<div class="mt-2">
-    <h2>Friend list</h2>
-    @if(Model.FriendList.Count() == 0)
-    {
-        <h1>No Friends</h1>
-    }
-    else
-    {
-        @foreach(string s in Model.FriendList)
-        {
-            @s
-            <form method="post">
-                <button type="submit" class="btn btn-info  btn-sm" asp-page-handler="GetInfoAboutFriend" asp-route-arg1="@s">Get Info</button>
-                <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RemoveFriend" asp-route-FriendName="@s">Remove</button>
-            </form>
-        }
-    }
-</div>
-
-<div>
-    <a class="btn btn-primary mt-2" href="addfriends">Add Friends</a>
-</div>
-
-<div class="mt-2">
-    <h2 class="alert-info">Invite List</h2>
+        <h2 class="mt-3">Friend Requests</h2>
+        <div class="section">
+            <ul class="list">
             @if(Model.InviteList.Count() == 0)
             {
                 <h1>No Invites</h1>
             }
             else
             {
-                @foreach(FriendInvite s in Model.InviteListRaw)
+                @foreach(string s in Model.InviteList)
                 {
                         @s
                         <form method="post">
-                            <button type="submit" class="btn btn-info btn-sm" asp-page-handler="AddFriend" asp-route-invite="@s">Add</button>
-                            <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RejectFriend" asp-route-invite="@s">Reject</button>
+                            <button type="submit" class="btn btn-info btn-sm" asp-page-handler="AddFriend" asp-route-friendname="@s">Add</button>
+                            <button type="submit" class="btn btn-danger btn-sm" asp-page-handler="RejectFriend" asp-route-friendname="@s">Reject</button>
                         </form>
                 }
             }
+            </ul>
+        </div>
+    </div>
+    <div class="left mt-4">
+        @{
+            int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
+            int currentDay = 1;
+            int daysInWeek = 7; // Number of days in a week
+        }
+        <table>
+            <tr>
+                @for (int i = 0; i < daysInWeek; i++)
+                {
+                    <td>@(currentDay <= daysInMonth ? currentDay.ToString() : "")</td>
+                    currentDay++;
+                }
+            </tr>
+            @while (currentDay <= daysInMonth)
+            {
+                <tr>
+                    @for (int i = 0; i < daysInWeek; i++)
+                    {
+                        <td>@(currentDay <= daysInMonth ? currentDay.ToString() : "")</td>
+                        currentDay++;
+                    }
+                </tr>
+            }
+        </table>
+    </div>
 </div>
 
-<div>
-    <a class="btn btn-secondary mt-2" href="logout">Log Out</a>
-</div>
 
 @functions{
 
     public class MainTableModel: UserPageModel
     {
         public UserManager<IdentityUser> UserManager;
-        public HttpClient Http;
         public MonthBase Month;
         public DataContext Context;
 
@@ -126,7 +154,7 @@
             }
 
             //InviteList
-            InviteListRaw = Context.InviteList.Where(obj => obj.FriendUserName == user.Id).ToList();
+            InviteListRaw = Context.InviteList.Where(obj => obj.FriendUserName == user.UserName).ToList();
 
             foreach (FriendInvite friend in InviteListRaw)
             {
@@ -137,20 +165,21 @@
 
         }
 
-        public async Task<IActionResult> OnPostAddFriendAsync(FriendInvite invite)
+        public async Task<IActionResult> OnPostAddFriendAsync(string friendname)
         {
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            IdentityUser tempUserFriend = await UserManager.FindByNameAsync(friendname);
 
-            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserId == invite.FriendUserName && obj.FriendUserName == tempUserLocal.UserName);
+            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserId == tempUserFriend.Id && obj.FriendUserName == tempUserLocal.UserName);
 
             if (!checkIfAnyInvites.Any())
                 return StatusCode(400);
 
-            Context.InviteList.Remove(invite);
+            Context.InviteList.Remove(checkIfAnyInvites.First());
 
             UserFriendList tempFriendRecord = new UserFriendList
             {
-                    MainUserId = invite.MainUserId,
+                    MainUserId = checkIfAnyInvites.First().MainUserId,
                     FriendUserId = tempUserLocal.Id
             };
             await Context.userFriendLists.AddAsync(tempFriendRecord);
@@ -160,16 +189,17 @@
             return RedirectToPage();
         }
 
-        public async Task<IActionResult> OnPostRejectFriendAsync(FriendInvite invite)
+        public async Task<IActionResult> OnPostRejectFriendAsync(string friendname)
         {
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            IdentityUser tempUserFriend = await UserManager.FindByNameAsync(friendname);
 
-            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserId == invite.FriendUserName && obj.FriendUserName == tempUserLocal.UserName);
+            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserId == tempUserFriend.Id && obj.FriendUserName == tempUserLocal.UserName);
 
             if (!checkIfAnyInvites.Any())
                 return StatusCode(400);
 
-            Context.InviteList.Remove(invite);
+            Context.InviteList.Remove(checkIfAnyInvites.First());
 
             await Context.SaveChangesAsync();
 
@@ -181,18 +211,37 @@
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
             IdentityUser tempUserFriend = await UserManager.FindByNameAsync(FriendName);
 
-            UserFriendList tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserId == tempUserLocal.Id && obj.FriendUserId == tempUserFriend.Id)
+            var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserId == tempUserLocal.Id && obj.FriendUserId == tempUserFriend.Id)
                        || (obj.MainUserId == tempUserFriend.Id && obj.FriendUserId == tempUserLocal.Id)).First();
+
+            if (tempRecord == null)
+                return StatusCode(400);
 
             Context.userFriendLists.Remove(tempRecord);
             await Context.SaveChangesAsync();
 
             return RedirectToPage();
         }
-        
+
         public async Task<IActionResult> OnPostGetInfoAboutFriendAsync(string arg1)
         {
-            
+
+
+            return RedirectToPage();
+        }
+
+        //LeaveGroup
+        public async Task<IActionResult> OnPostLeaveGroupAsync(string groupname)
+        {
+            IdentityUser TempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+            var check = Context.GroupRecords.SingleOrDefault(obj => obj.GroupNameThatRecordBelong == groupname && obj.UserIdThatBelongsToGroup == TempUserLocal.Id);
+
+            if (check == null)
+                return StatusCode(400);
+
+            Context.GroupRecords.Remove(check);
+            await Context.SaveChangesAsync();
 
             return RedirectToPage();
         }

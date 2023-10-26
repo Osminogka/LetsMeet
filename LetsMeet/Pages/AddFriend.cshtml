@@ -35,9 +35,8 @@
     {
         public IdentityUser User;
         public UserManager<IdentityUser> UserManager;
-        public DataContext ContextData;
+        public DataContext Context;
         public UserContext ContextUser;
-        public HttpClient Http;
 
 
         public List<string> UsersNames = new List<string>();
@@ -51,9 +50,8 @@
         public AddFriendModel(UserManager<IdentityUser> userManager, DataContext ctx, UserContext ctx2, IHttpClientFactory httpClientFactory)
         {
             UserManager = userManager;
-            ContextData = ctx;
+            Context = ctx;
             ContextUser = ctx2;
-            Http = httpClientFactory.CreateClient("MainClient");
         }
 
         public async Task OnGetAsync()
@@ -64,15 +62,41 @@
 
         public async Task<IActionResult> OnPostAsync()
         {   
-            IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            User = user;
-            Http.DefaultRequestHeaders.Add("LocalUserId", (string)user.Id);
-            Http.DefaultRequestHeaders.Add("FriendUserName", FriendUserName);
+            IdentityUser LocalUser = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            IdentityUser FriendUser = await UserManager.FindByNameAsync(FriendUserName);
+            
 
-            HttpResponseMessage response = await Http.PostAsync($"/api/addfriend", null);
-            if (response.IsSuccessStatusCode)
-                return Redirect("/");
-            return Page();
+            if (FriendUser == null)
+                return StatusCode(400);
+
+            try
+            {
+                var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserId == LocalUser.Id && obj.FriendUserId == FriendUser.Id)
+                        || (obj.MainUserId == FriendUser.Id && obj.FriendUserId == LocalUser.Id));
+
+                if (tempRecord.Any())
+                    return StatusCode(400);
+
+                FriendInvite invite = new FriendInvite
+                {
+                    MainUserId = LocalUser.Id,
+                    FriendUserName = FriendUserName
+                };
+
+                FriendInvite? check = Context.InviteList.SingleOrDefault(obj => obj.MainUserId == LocalUser.Id && obj.FriendUserName == FriendUserName);
+
+                if (check != null)
+                    return StatusCode(400);
+
+                await Context.InviteList.AddAsync(invite);
+                await Context.SaveChangesAsync();
+
+                return Redirect("~/");
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(401);
+            }
         }
     }
 }
