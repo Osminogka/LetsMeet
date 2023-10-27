@@ -3,18 +3,16 @@ using LetsMeet.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LetsMeet.Migrations.Data
+namespace LetsMeet.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230828171824_Data")]
-    partial class Data
+    partial class DataContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,13 +95,14 @@ namespace LetsMeet.Migrations.Data
                     b.Property<int>("DayNumber")
                         .HasColumnType("int");
 
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("MonthNumber")
                         .HasColumnType("int");
 
-                    b.Property<string>("RecordCreator")
+                    b.Property<string>("RecordCreatorId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -116,6 +115,10 @@ namespace LetsMeet.Migrations.Data
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("RelatedUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("RecordId");
 

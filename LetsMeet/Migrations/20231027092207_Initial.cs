@@ -2,9 +2,9 @@
 
 #nullable disable
 
-namespace LetsMeet.Migrations.Data
+namespace LetsMeet.Migrations
 {
-    public partial class Data : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -56,8 +56,9 @@ namespace LetsMeet.Migrations.Data
                 {
                     RecordId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RecordCreator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: false),
+                    RecordCreatorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RelatedUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DayNumber = table.Column<int>(type: "int", nullable: false),
                     MonthNumber = table.Column<int>(type: "int", nullable: false),
                     RecordName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),

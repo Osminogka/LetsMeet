@@ -3,7 +3,7 @@
 
 <header>
     <div class="header-container">
-        <h1 class="center-header">Let's meet!</h1>
+        <h1 class="center-header text-white">Let's meet!</h1>
         <a class="left-link right-header btn btn-danger" href="logout">Log Out</a>
     </div>
 </header>
@@ -81,30 +81,63 @@
         </div>
     </div>
     <div class="left mt-4">
-        @{
-            int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
-            int currentDay = 1;
-            int daysInWeek = 7; // Number of days in a week
-        }
         <table>
-            <tr>
-                @for (int i = 0; i < daysInWeek; i++)
-                {
-                    <td>@(currentDay <= daysInMonth ? currentDay.ToString() : "")</td>
-                    currentDay++;
-                }
-            </tr>
+            @{
+                int daysInMonth = Model.Month.DayAmount;
+                int currentDay = 1;
+                int daysInWeek = 7; // Number of days in a week
+            }
             @while (currentDay <= daysInMonth)
             {
                 <tr>
                     @for (int i = 0; i < daysInWeek; i++)
                     {
-                        <td>@(currentDay <= daysInMonth ? currentDay.ToString() : "")</td>
+                        if(currentDay == Model.Month.CurrentDay)
+                        {
+                            <td class="highlighted-cell">                                
+                                <form method="post">
+                                    <button type="submit" class="text-warning" asp-page-handler="getdayinfo" asp-route-daynumber="@Model.Month.CurrentDay">
+                                        @(currentDay <= daysInMonth ? currentDay.ToString() : "")
+                                    </button>
+                                </form>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <form method="post">
+                                        <button type="submit" class="text-warning" asp-page-handler="getdayinfo" asp-route-daynumber="@(currentDay <= daysInMonth ? currentDay.ToString() : "")">
+                                        @(currentDay <= daysInMonth ? currentDay.ToString() : "")
+                                    </button>
+                                </form>
+                            </td>
+                        }
                         currentDay++;
                     }
                 </tr>
             }
         </table>
+        <div>
+            @if(Model.SelectedDay > 31)
+            {
+                <h1>Day is not selected</h1>
+            }
+            else
+            {
+                <h1>Selected day: @Model.SelectedDay</h1>
+                <form>
+                    <select asp-for="FriendName" class="form-control">
+                        @foreach(string s in Model.FriendList)
+                        {
+                            <option value="@s">@s</option>
+                        }
+                    </select>
+                    <input class="form-control" asp-for="RecordName" />
+                    <input class="form-control" asp-for="RecordDis" />
+                    <button type="submit" class="text-warning" asp-page-handler="createrecord">Create Record</button>
+                </form>
+            }
+        </div>
     </div>
 </div>
 
@@ -114,21 +147,24 @@
     public class MainTableModel: UserPageModel
     {
         public UserManager<IdentityUser> UserManager;
-        public MonthBase Month;
         public DataContext Context;
 
         public MainTableModel(UserManager<IdentityUser> usrManager, IHttpClientFactory httpClientFactory, DataContext ctx)
         {
             UserManager = usrManager;
             Context = ctx;
-            Month = new MonthBase()
-            {
-                MonthNumber = DateTime.Today.Month,
-                DayAmount = MonthBase.monthDays[DateTime.Now.ToString("MMMM")],
-                Meetings = new List<Record>()
-            };
         }
 
+        public MonthBase Month = new MonthBase();
+
+        public int? SelectedDay { get; set; } = 999;
+
+        [BindProperty]
+        public string FriendName { get; set; }
+        [BindProperty]
+        public string RecordName { get; set; }
+        [BindProperty]
+        public string RecordDis { get; set; }
 
         public List<string> GroupList = new List<string>();
         public List<string> FriendListRaw = new List<string>();
@@ -138,6 +174,18 @@
 
         public async Task OnGetAsync()
         {
+            var tempSelectedDay = HttpContext.Session.GetInt32("SelectedDay");
+            if (tempSelectedDay != null)
+                SelectedDay = tempSelectedDay;
+
+            Month = new MonthBase()
+            {
+                MonthNumber = DateTime.Today.Month,
+                DayAmount = MonthInfo.monthDays[DateTime.Now.ToString("MMMM")],
+                Meetings = new List<Record>(),
+                CurrentDay = DateTime.Now.Day
+            };
+
             IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
             //GroupList
@@ -241,6 +289,37 @@
                 return StatusCode(400);
 
             Context.GroupRecords.Remove(check);
+            await Context.SaveChangesAsync();
+
+            return RedirectToPage();
+        }
+
+        //getdayinfo
+        public async Task<IActionResult> OnPostGetDayInfoAsync(int daynumber)
+        {
+            HttpContext.Session.SetInt32("SelectedDay", daynumber);
+
+            return RedirectToPage();
+        }
+
+        //createrecord
+        public async Task<IActionResult> OnPostCreateRecordAsync()
+        {
+            IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            IdentityUser tempFriend = await UserManager.FindByNameAsync(FriendName);
+
+            Record tempRecord = new Record()
+                {
+                    RecordCreatorId = tempUserLocal.Id,
+                    RelatedUserId = tempFriend.Id,
+                    RecordName = RecordName,
+                    RecordString = RecordDis,
+                    GroupName = "None",
+                    DayNumber = Month.CurrentDay,
+                    MonthNumber = Month.MonthNumber
+                };
+
+            await Context.Records.AddAsync(tempRecord);
             await Context.SaveChangesAsync();
 
             return RedirectToPage();

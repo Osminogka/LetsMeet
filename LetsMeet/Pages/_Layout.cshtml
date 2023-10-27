@@ -83,14 +83,18 @@
                 font-size: 14px;
             }
             table {
-            border-collapse: collapse;
-            width: auto; /* Adjust the table width as needed */
-            font-size: 50px; /* Adjust the font size to make the numbers larger */
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 2px solid #000;
+            border-radius: 10px; /* Round the corners of the table */
+            overflow: hidden;
+            font-size: 50px;
             }
+
+            /* Style the table cells (td) */
             td {
-                border: 1px solid #ccc;
-                padding: 10px;
-                text-align: center;
+                padding: 8px;
+                border: 1px solid #000; /* Add inner borders to table cells */
             }
              .header-container {
             display: flex;
@@ -109,6 +113,10 @@
                 text-decoration: none;
                 color: white;
                 margin-left: 20px;
+            }
+            .highlighted-cell {
+            background-color: yellow;
+            font-weight: bold;
             }
         </style>
     </head>

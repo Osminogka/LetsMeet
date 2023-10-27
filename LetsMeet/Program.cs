@@ -7,6 +7,7 @@ using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,11 +57,16 @@ builder.Services.AddAuthentication(opts =>
     opts.LoginPath = "/login";
 });
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+    options.IdleTimeout = TimeSpan.FromMinutes(20)
+    
+);
 
 var app = builder.Build();
 
 app.UseStaticFiles();
-
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

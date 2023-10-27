@@ -10,6 +10,11 @@ namespace LetsMeet.Models
         public int MonthNumber { get; set; }
         public int DayAmount { get; set; }
         public List<Record>? Meetings { get; set; }
+        public int CurrentDay { get; set; }
+    }
+
+    public class MonthInfo
+    {
         public static Dictionary<string, int> monthDays = new Dictionary<string, int>()
         {
             { "January", 31 },
@@ -35,9 +40,11 @@ namespace LetsMeet.Models
         public List<string> UserList { get; set; } = new List<string>();
 
         [Required(ErrorMessage = "Creator unknown")]
-        public string RecordCreator { get; set; } = String.Empty;
+        public string RecordCreatorId { get; set; } = String.Empty;
 
-        public int GroupId {get;set;}
+        public string GroupName {get;set;}
+
+        public string RelatedUserId { get; set; } = String.Empty;
 
         [Required(ErrorMessage = "Unknown day")]
         public int DayNumber { get; set; }
