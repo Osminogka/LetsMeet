@@ -92,6 +92,10 @@ namespace LetsMeet.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RecordId"), 1L, 1);
 
+                    b.Property<string>("CreaterUserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("DayNumber")
                         .HasColumnType("int");
 

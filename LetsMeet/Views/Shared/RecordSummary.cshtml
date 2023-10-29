@@ -1,0 +1,24 @@
+﻿@model Record
+
+<div class="card card-outline-primary m-1 p-1" style="width: 400px; height: 100px;">
+    <div>
+        Day: @Model.DayNumber, Month: @Model.MonthNumber
+    </div>
+    <div>
+        Created by:
+        @if(Model.GroupName != "None")
+        {
+            @Model.GroupName
+        }
+        else
+        {
+            @Model.CreaterUserName
+        }
+    </div>
+    <div>
+        @Model.RecordName
+    </div>
+    <div>
+        @Model.RecordString
+    </div>
+</div>

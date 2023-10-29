@@ -26,10 +26,10 @@
             .left {
             float: left;
             width: 40%; /* Adjust the width as needed */
-        }
-        .right {
-            margin-left: 5%; /* Adjust the width value plus any desired spacing */
-        }
+            }
+            .right {
+                margin-left: 1%; /* Adjust the width value plus any desired spacing */
+            }
             h1 {
                 color: #333;
             }
@@ -118,6 +118,36 @@
             background-color: yellow;
             font-weight: bold;
             }
+            .arrow-button {
+            background-color: #0074d9; /* Background color */
+            color: #fff; /* Text color */
+            border: none;
+            padding: 10px 20px; /* Padding for button size */
+            font-size: 16px; /* Font size */
+            cursor: pointer;
+        }
+
+        /* Add a right arrow using CSS content property */
+        .arrow-button::before {
+            content: '\2192'; /* Unicode character for right arrow */
+            margin-left: 10px; /* Space between arrow and text */
+        }
+
+        /* Style for the left arrow button */
+        .left-arrow-button {
+            background-color: #0074d9; /* Background color */
+            color: #fff; /* Text color */
+            border: none;
+            padding: 10px 20px; /* Padding for button size */
+            font-size: 16px; /* Font size */
+            cursor: pointer;
+        }
+
+        /* Add a left arrow using CSS content property */
+        .left-arrow-button::before {
+            content: '\2190'; /* Unicode character for left arrow */
+            margin-right: 10px; /* Space between arrow and text */
+        }
         </style>
     </head>
     <body>

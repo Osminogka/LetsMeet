@@ -30,6 +30,22 @@ namespace LetsMeet.Models
             { "November", 30 },
             { "December", 31 }
         };
+
+        public static Dictionary<int, string> monthDictionary = new Dictionary<int, string>
+        {
+            { 1, "January" },
+            { 2, "February" },
+            { 3, "March" },
+            { 4, "April" },
+            { 5, "May" },
+            { 6, "June" },
+            { 7, "July" },
+            { 8, "August" },
+            { 9, "September" },
+            { 10, "October" },
+            { 11, "November" },
+            { 12, "December" }
+        };
     }
 
     public class Record
@@ -38,6 +54,9 @@ namespace LetsMeet.Models
 
         [NotMapped]
         public List<string> UserList { get; set; } = new List<string>();
+
+        [Required]
+        public string CreaterUserName { get; set; } = String.Empty;
 
         [Required(ErrorMessage = "Creator unknown")]
         public string RecordCreatorId { get; set; } = String.Empty;
@@ -60,6 +79,18 @@ namespace LetsMeet.Models
         [MinLength(1, ErrorMessage = "To short")]
         [MaxLength(256, ErrorMessage = "Message is too long")]
         public string RecordString { get; set; } = String.Empty;
+
+        public bool IsValid()
+        {
+            return
+                this.RecordCreatorId != null &&
+                this.GroupName != null &&
+                this.RelatedUserId != null &&
+                this.RecordName != null &&
+                this.RecordString != null &&
+                this.DayNumber != 0 &&
+                this.MonthNumber != 0;
+        }
     }
 
     public class Group

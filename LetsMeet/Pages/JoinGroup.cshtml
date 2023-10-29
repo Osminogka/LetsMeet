@@ -50,15 +50,13 @@
         {
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
-            var GroupList = Context.Groups.Select(obj => obj.GroupName);
+            List<string> GroupList = Context.Groups.Select(obj => obj.GroupName).ToList();
             foreach(string tempG in GroupList)
             {
                 var checkIfBelongTo = Context.GroupRecords.SingleOrDefault(obj => obj.UserIdThatBelongsToGroup == tempUserLocal.Id && obj.GroupNameThatRecordBelong == tempG);
-                if (checkIfBelongTo != null)
-                    GroupList.ToList().Remove(checkIfBelongTo.GroupNameThatRecordBelong);
+                if (checkIfBelongTo == null)
+                    GroupNames.Add(tempG);
             }
-
-            GroupNames = GroupList.ToList();
         }
 
         public async Task<IActionResult> OnPostAsync()

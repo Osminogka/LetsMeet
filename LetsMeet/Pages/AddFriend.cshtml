@@ -28,6 +28,18 @@
     </div>
 }
 
+<div>
+    <ul class="pagination">
+        @for (int tpage = 1; tpage <= Model.TotalPages; tpage++)
+        {
+            <li class="page-item @(tpage == Model.CurrentPage ? "active" : "")">
+                <a class="page-link" href="/addfriends?tpage=@tpage">@tpage</a>
+            </li>
+        }
+    </ul>
+</div>
+
+
 
 @functions{
 
@@ -54,10 +66,53 @@
             ContextUser = ctx2;
         }
 
-        public async Task OnGetAsync()
+        public int CurrentPage { get; set; } = 1;
+        public int ItemsPerPage { get; set; } = 10;
+        public int TotalItems { get; set; } = 0;
+
+        public int TotalPages
+        {
+            get
+            {
+                return (int)Math.Ceiling((double)TotalItems / ItemsPerPage);
+            }
+        }
+
+        public async Task OnGetAsync(int? tpage)
+        {
+            if (tpage.HasValue)
+            {
+                CurrentPage = tpage.Value;
+            }
+
+            TotalItems = await GetTotalUsers();
+            UsersNames = await GetPagedUser();
+        }
+
+        private async Task<List<string>> GetPagedUser()
         {
             User = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            UsersNames = ContextUser.Users.Select(obj => obj.UserName).Where(obj => obj != User.UserName).ToList(); 
+            UsersNames = ContextUser.Users.Select(obj => obj.UserName).Where(obj => obj != User.UserName).ToList();
+            List<string> FinalList = new List<string>();
+
+            int startIndex = (CurrentPage - 1) * ItemsPerPage;
+            for (int i = startIndex; i < ItemsPerPage + startIndex; i++)
+            {
+                if (i >= 0 && i < UsersNames.Count)
+                    FinalList.Add(UsersNames[i]);
+                else
+                    break;
+            }
+
+            return FinalList;
+        }
+
+        private async Task<int> GetTotalUsers()
+        {
+            User = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            UsersNames = ContextUser.Users.Select(obj => obj.UserName).Where(obj => obj != User.UserName).ToList();
+
+            return UsersNames.Count;
         }
 
         public async Task<IActionResult> OnPostAsync()
