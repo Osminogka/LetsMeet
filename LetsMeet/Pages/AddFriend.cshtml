@@ -117,27 +117,22 @@
         public async Task<IActionResult> OnPostAsync()
         {   
             IdentityUser LocalUser = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            IdentityUser FriendUser = await UserManager.FindByNameAsync(FriendUserName);
-            
-
-            if (FriendUser == null)
-                return StatusCode(400);
 
             try
             {
-                var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserId == LocalUser.Id && obj.FriendUserId == FriendUser.Id)
-                        || (obj.MainUserId == FriendUser.Id && obj.FriendUserId == LocalUser.Id));
+                var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserName == LocalUser.UserName && obj.FriendUserName == FriendUserName)
+                        || (obj.MainUserName == FriendUserName && obj.FriendUserName == LocalUser.UserName));
 
                 if (tempRecord.Any())
                     return StatusCode(400);
 
                 FriendInvite invite = new FriendInvite
                 {
-                    MainUserId = LocalUser.Id,
+                    MainUserName = LocalUser.UserName,
                     FriendUserName = FriendUserName
                 };
 
-                FriendInvite? check = Context.InviteList.SingleOrDefault(obj => obj.MainUserId == LocalUser.Id && obj.FriendUserName == FriendUserName);
+                FriendInvite? check = Context.InviteList.SingleOrDefault(obj => obj.MainUserName == LocalUser.UserName && obj.FriendUserName == FriendUserName);
 
                 if (check != null)
                     return StatusCode(400);

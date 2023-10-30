@@ -80,15 +80,15 @@
         {   
             IdentityUser TempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
-            GroupRecords? check = Context.GroupRecords.SingleOrDefault(obj => obj.GroupNameThatRecordBelong == GroupName && obj.UserIdThatBelongsToGroup == TempUserLocal.Id);
+            GroupRecords? check = Context.GroupRecords.SingleOrDefault(obj => obj.GroupName == GroupName && obj.UserName == TempUserLocal.UserName);
 
             if (check != null)
                 return StatusCode(400);
 
             GroupRecords temporaryGroupRecord = new GroupRecords
             {
-                UserIdThatBelongsToGroup = TempUserLocal.Id,
-                GroupNameThatRecordBelong = GroupName
+                UserName = TempUserLocal.UserName,
+                GroupName = GroupName
             };
 
             await Context.GroupRecords.AddAsync(temporaryGroupRecord);
@@ -107,7 +107,7 @@
             List<string> GroupList = Context.Groups.Select(obj => obj.GroupName).ToList();
             foreach(string tempG in GroupList)
             {
-                var checkIfBelongTo = Context.GroupRecords.SingleOrDefault(obj => obj.UserIdThatBelongsToGroup == tempUserLocal.Id && obj.GroupNameThatRecordBelong == tempG);
+                var checkIfBelongTo = Context.GroupRecords.SingleOrDefault(obj => obj.UserName == tempUserLocal.UserName && obj.GroupName == tempG);
                 if (checkIfBelongTo == null)
                     GroupNames.Add(tempG);
             }

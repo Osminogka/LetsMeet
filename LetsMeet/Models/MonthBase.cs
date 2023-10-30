@@ -52,18 +52,12 @@ namespace LetsMeet.Models
     {
         public long RecordId { get; set; }
 
-        [NotMapped]
-        public List<string> UserList { get; set; } = new List<string>();
-
-        [Required]
-        public string CreaterUserName { get; set; } = String.Empty;
-
         [Required(ErrorMessage = "Creator unknown")]
-        public string RecordCreatorId { get; set; } = String.Empty;
+        public string CreaterUserName { get; set; } = String.Empty;
 
         public string GroupName {get;set;}
 
-        public string RelatedUserId { get; set; } = String.Empty;
+        public string RelatedUserName { get; set; } = String.Empty;
 
         [Required(ErrorMessage = "Unknown day")]
         public int DayNumber { get; set; }
@@ -83,9 +77,9 @@ namespace LetsMeet.Models
         public bool IsValid()
         {
             return
-                this.RecordCreatorId != null &&
+                this.CreaterUserName != null &&
                 this.GroupName != null &&
-                this.RelatedUserId != null &&
+                this.RelatedUserName != null &&
                 this.RecordName != null &&
                 this.RecordString != null &&
                 this.DayNumber != 0 &&
@@ -100,26 +94,8 @@ namespace LetsMeet.Models
         [Required(ErrorMessage = "Group must have name")]  
         public string GroupName { get; set; } = String.Empty;
 
-        [NotMapped]
-        public List<string>? Members { get; set; } = new List<string>();
-
         [Required(ErrorMessage = "Must provide a creator")]
-        public string CreatorId { get; set; } = String.Empty;
-    }
-
-    public class UserInfo
-    {
-        [Key]
-        public long RecordId { get; set; }
-
-        [Required(ErrorMessage = "User is missing")]
-        public string UserName { get; set; } = String.Empty;
-
-        [NotMapped]
-        public IEnumerable<string>? FriendsList { get; set; }
-
-        [NotMapped]
-        public IEnumerable<Group>? GroupList { get; set; }
+        public string CreatorName { get; set; } = String.Empty;
     }
 
     public class GroupRecords
@@ -128,10 +104,10 @@ namespace LetsMeet.Models
         public long RecordId { get; set; }
 
         [Required(ErrorMessage = "User must be provided")]
-        public string GroupNameThatRecordBelong { get; set; }
+        public string GroupName { get; set; }
 
         [Required(ErrorMessage = "User must be provided")]
-        public string UserIdThatBelongsToGroup { get; set; }
+        public string UserName { get; set; }
     }
 
     public class UserFriendList
@@ -140,10 +116,10 @@ namespace LetsMeet.Models
         public long RecordId { get; set; }
 
         [Required(ErrorMessage = "Main userId must be provided")]
-        public string MainUserId { get; set; }
+        public string MainUserName { get; set; }
 
         [Required(ErrorMessage = "FriendId must be provided")]
-        public string FriendUserId { get; set; }
+        public string FriendUserName { get; set; }
     }
 
     public class FriendInvite
@@ -152,7 +128,7 @@ namespace LetsMeet.Models
         public long RecordId { get; set; }
 
         [Required(ErrorMessage = "UserId is missing")]
-        public string MainUserId { get; set; }
+        public string MainUserName { get; set; }
 
         [Required(ErrorMessage = "UserId is missing")]
         public string FriendUserName { get; set; }

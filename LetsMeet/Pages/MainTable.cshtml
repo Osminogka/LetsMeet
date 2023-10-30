@@ -289,9 +289,8 @@
         public async Task<IActionResult> OnPostAddFriendAsync(string friendname)
         {
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            IdentityUser tempUserFriend = await UserManager.FindByNameAsync(friendname);
 
-            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserId == tempUserFriend.Id && obj.FriendUserName == tempUserLocal.UserName);
+            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserName == friendname && obj.FriendUserName == tempUserLocal.UserName);
 
             if (!checkIfAnyInvites.Any())
             {
@@ -304,8 +303,8 @@
 
             UserFriendList tempFriendRecord = new UserFriendList
             {
-                    MainUserId = checkIfAnyInvites.First().MainUserId,
-                    FriendUserId = tempUserLocal.Id
+                    MainUserName = checkIfAnyInvites.First().FriendUserName,
+                    FriendUserName = friendname
             };
             await Context.userFriendLists.AddAsync(tempFriendRecord);
 
@@ -317,9 +316,8 @@
         public async Task<IActionResult> OnPostRejectFriendAsync(string friendname)
         {
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            IdentityUser tempUserFriend = await UserManager.FindByNameAsync(friendname);
 
-            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserId == tempUserFriend.Id && obj.FriendUserName == tempUserLocal.UserName);
+            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserName == friendname && obj.FriendUserName == tempUserLocal.UserName);
 
             if (!checkIfAnyInvites.Any())
             {
@@ -338,10 +336,9 @@
         public async Task<IActionResult> OnPostRemoveFriendAsync(string FriendName)
         {
             IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            IdentityUser tempUserFriend = await UserManager.FindByNameAsync(FriendName);
 
-            var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserId == tempUserLocal.Id && obj.FriendUserId == tempUserFriend.Id)
-                       || (obj.MainUserId == tempUserFriend.Id && obj.FriendUserId == tempUserLocal.Id)).First();
+            var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserName == tempUserLocal.UserName && obj.FriendUserName == FriendName)
+                       || (obj.MainUserName == FriendName && obj.FriendUserName == tempUserLocal.UserName)).First();
 
             if (tempRecord == null)
             {
@@ -367,7 +364,7 @@
         {
             IdentityUser TempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
-            var check = Context.GroupRecords.SingleOrDefault(obj => obj.GroupNameThatRecordBelong == groupname && obj.UserIdThatBelongsToGroup == TempUserLocal.Id);
+            var check = Context.GroupRecords.SingleOrDefault(obj => obj.GroupName == groupname && obj.UserName == TempUserLocal.UserName);
 
             if (check == null)
             {
@@ -423,7 +420,7 @@
             if (FriendName.StartsWith("Group/$/"))
             {
                 FriendName = FriendName.Substring("Group/$/".Length);
-                var tempFriendRecord = Context.Groups.FirstOrDefault(obj => obj.GroupName == FriendName && obj.CreatorId == tempUserLocal.Id);
+                var tempFriendRecord = Context.Groups.FirstOrDefault(obj => obj.GroupName == FriendName && obj.CreatorName == tempUserLocal.UserName);
                 if (tempFriendRecord == null)
                 {
                     ModelState.AddModelError("RecordCreateError", "Invalid group");
@@ -431,7 +428,7 @@
                     return Page();
                 }
 
-                var checkForRecords = Context.Records.SingleOrDefault(obj => obj.RecordCreatorId == tempUserLocal.Id && obj.GroupName == FriendName && obj.RecordName == RecordName);
+                var checkForRecords = Context.Records.SingleOrDefault(obj => obj.CreaterUserName == tempUserLocal.UserName && obj.GroupName == FriendName && obj.RecordName == RecordName);
                 if(checkForRecords != null)
                 {
                     ModelState.AddModelError("RecordCreateError", "Record with such name for this group already exist");
@@ -439,8 +436,8 @@
                     return Page();
                 }
 
-                tempRecord.RecordCreatorId = tempUserLocal.Id;
-                tempRecord.RelatedUserId = "none";
+                tempRecord.CreaterUserName = tempUserLocal.UserName;
+                tempRecord.RelatedUserName = "none";
                 tempRecord.RecordName = RecordName;
                 tempRecord.RecordString = RecordDis;
                 tempRecord.GroupName = FriendName;
@@ -451,8 +448,8 @@
             else
             {
                 IdentityUser tempFriend = await UserManager.FindByNameAsync(FriendName);
-                var tempFriendRecord = Context.userFriendLists.FirstOrDefault(obj => (obj.MainUserId == tempUserLocal.Id && obj.FriendUserId == tempFriend.Id)
-                       || (obj.MainUserId == tempFriend.Id && obj.FriendUserId == tempUserLocal.Id));
+                var tempFriendRecord = Context.userFriendLists.FirstOrDefault(obj => (obj.MainUserName == tempUserLocal.UserName && obj.FriendUserName == FriendName)
+                       || (obj.MainUserName == FriendName && obj.FriendUserName == tempUserLocal.UserName));
 
                 if (tempFriendRecord == null)
                 {
@@ -461,7 +458,7 @@
                     return Page();
                 }
 
-                var checkForRecords = Context.Records.SingleOrDefault(obj => obj.RecordCreatorId == tempUserLocal.Id && obj.RelatedUserId == tempFriend.Id && obj.RecordName == RecordName);
+                var checkForRecords = Context.Records.SingleOrDefault(obj => obj.CreaterUserName == tempUserLocal.UserName && obj.RelatedUserName == FriendName && obj.RecordName == RecordName);
                 if(checkForRecords != null)
                 {
                     ModelState.AddModelError("RecordCreateError", "Record with such name and user already exist");
@@ -469,8 +466,8 @@
                     return Page();
                 }
 
-                tempRecord.RecordCreatorId = tempUserLocal.Id;
-                tempRecord.RelatedUserId = tempFriend.Id;
+                tempRecord.CreaterUserName = tempUserLocal.UserName;
+                tempRecord.RelatedUserName = FriendName;
                 tempRecord.RecordName = RecordName;
                 tempRecord.RecordString = RecordDis;
                 tempRecord.GroupName = "None";
@@ -559,30 +556,17 @@
             IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
             //GroupList
-            GroupList = Context.GroupRecords.Where(obj => obj.UserIdThatBelongsToGroup == user.Id).Select(obj => obj.GroupNameThatRecordBelong).ToList();
+            GroupList = Context.GroupRecords.Where(obj => obj.UserName == user.UserName).Select(obj => obj.GroupName).ToList();
 
             //FriendList
-            FriendListRaw = Context.userFriendLists.Where(obj => obj.MainUserId == user.Id || obj.FriendUserId == user.Id).
-                Select(obj => obj.FriendUserId == user.Id ? obj.MainUserId : obj.FriendUserId).ToList();
-
-            foreach (string id in FriendListRaw)
-            {
-                IdentityUser tempUser = await UserManager.FindByIdAsync(id);
-                FriendList.Add(tempUser.UserName);
-            }
+            FriendList = Context.userFriendLists.Where(obj => obj.MainUserName == user.UserName || obj.FriendUserName == user.UserName).
+                Select(obj => obj.FriendUserName == user.UserName ? obj.MainUserName : obj.FriendUserName).ToList();
 
             //InviteList
-            InviteListRaw = Context.InviteList.Where(obj => obj.FriendUserName == user.UserName).ToList();
-
-            foreach (FriendInvite friend in InviteListRaw)
-            {
-                string id = friend.MainUserId;
-                IdentityUser userTemp = await UserManager.FindByIdAsync(id);
-                InviteList.Add(userTemp.UserName);
-            }
+            InviteList = Context.InviteList.Where(obj => obj.FriendUserName == user.UserName).Select(obj => obj.MainUserName).ToList();
 
             //Records
-            RecordsList = Context.Records.Where(obj => (obj.RecordCreatorId == user.Id || obj.RelatedUserId == user.Id) && obj.MonthNumber == Month.MonthNumber).ToList();
+            RecordsList = Context.Records.Where(obj => (obj.CreaterUserName == user.UserName || obj.RelatedUserName == user.UserName) && obj.MonthNumber == Month.MonthNumber && obj.GroupName == "none").ToList();
             List<Record> tempRecords = new List<Record>();
             foreach(string tempGroup in GroupList)
                 tempRecords = Context.Records.Where(obj => obj.GroupName==tempGroup && obj.MonthNumber == Month.MonthNumber ).ToList();

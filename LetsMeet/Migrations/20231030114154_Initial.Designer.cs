@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LetsMeet.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231030070747_Initial")]
+    [Migration("20231030114154_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,7 +35,7 @@ namespace LetsMeet.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MainUserId")
+                    b.Property<string>("MainUserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -52,7 +52,7 @@ namespace LetsMeet.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("GroupId"), 1L, 1);
 
-                    b.Property<string>("CreatorId")
+                    b.Property<string>("CreatorName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -73,11 +73,11 @@ namespace LetsMeet.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RecordId"), 1L, 1);
 
-                    b.Property<string>("GroupNameThatRecordBelong")
+                    b.Property<string>("GroupName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserIdThatBelongsToGroup")
+                    b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -108,10 +108,6 @@ namespace LetsMeet.Migrations
                     b.Property<int>("MonthNumber")
                         .HasColumnType("int");
 
-                    b.Property<string>("RecordCreatorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("RecordName")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -122,7 +118,7 @@ namespace LetsMeet.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("RelatedUserId")
+                    b.Property<string>("RelatedUserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -139,34 +135,17 @@ namespace LetsMeet.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RecordId"), 1L, 1);
 
-                    b.Property<string>("FriendUserId")
+                    b.Property<string>("FriendUserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MainUserId")
+                    b.Property<string>("MainUserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("RecordId");
 
                     b.ToTable("userFriendLists");
-                });
-
-            modelBuilder.Entity("LetsMeet.Models.UserInfo", b =>
-                {
-                    b.Property<long>("RecordId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RecordId"), 1L, 1);
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("RecordId");
-
-                    b.ToTable("UserInfos");
                 });
 #pragma warning restore 612, 618
         }

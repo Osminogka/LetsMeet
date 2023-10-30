@@ -14,8 +14,8 @@ namespace LetsMeet.Migrations
                 {
                     RecordId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    GroupNameThatRecordBelong = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserIdThatBelongsToGroup = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,7 +29,7 @@ namespace LetsMeet.Migrations
                     GroupId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatorId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    CreatorName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -42,7 +42,7 @@ namespace LetsMeet.Migrations
                 {
                     RecordId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MainUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MainUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FriendUserName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -57,9 +57,8 @@ namespace LetsMeet.Migrations
                     RecordId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreaterUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RecordCreatorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RelatedUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RelatedUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DayNumber = table.Column<int>(type: "int", nullable: false),
                     MonthNumber = table.Column<int>(type: "int", nullable: false),
                     RecordName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
@@ -76,25 +75,12 @@ namespace LetsMeet.Migrations
                 {
                     RecordId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MainUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FriendUserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    MainUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FriendUserName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_userFriendLists", x => x.RecordId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserInfos",
-                columns: table => new
-                {
-                    RecordId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserInfos", x => x.RecordId);
                 });
         }
 
@@ -114,9 +100,6 @@ namespace LetsMeet.Migrations
 
             migrationBuilder.DropTable(
                 name: "userFriendLists");
-
-            migrationBuilder.DropTable(
-                name: "UserInfos");
         }
     }
 }

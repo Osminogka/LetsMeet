@@ -44,14 +44,14 @@
 
             Group temporaryGroupObject = new Group
             {
-                CreatorId = TempUserLocal.Id,
+                CreatorName = TempUserLocal.UserName,
                 GroupName = GroupName
             };
 
             GroupRecords temporaryGroupRecord = new GroupRecords
             {
-                UserIdThatBelongsToGroup = TempUserLocal.Id,
-                GroupNameThatRecordBelong = GroupName
+                UserName = TempUserLocal.UserName,
+                GroupName = GroupName
             };
 
             await Context.Groups.AddAsync(temporaryGroupObject);
