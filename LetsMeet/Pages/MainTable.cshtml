@@ -39,13 +39,13 @@
             <ul class="list">
                 @if(Model.FriendList.Count() == 0)
                 {
-                    <h1>No Friends</h1>
+                    <h1 style="font-size: 24px;">No Friends</h1>
                 }
                 else
                 {
                     @foreach(string s in Model.FriendList)
                     {
-                        @s
+                        <h1 style="font-size: 24px;">@s</h1>
                         <div class="mt-2">
                             <form method="post">
                                 <button type="submit" class="btn btn-info  btn-sm" asp-page-handler="GetInfoAboutFriend" asp-route-arg1="@s">Get Info</button>
@@ -70,12 +70,13 @@
             {
                 @foreach(string s in Model.GroupList)
                 {
-                    <ul class="list group-list">
-                        <li class="list-item">@s</li>
+                    <ul class="list">
+                        <li style="font-size: 24px">@s</li>
                         <form method="post">
-                            <button type="submit" class="btn btn-info  btn-sm" asp-page-handler="LeaveGroup" asp-route-groupname="@s">Leave</button>
+                            <button type="submit" class="btn btn-info btn-sm" asp-page-handler="LeaveGroup" asp-route-groupname="@s">Leave</button>
                         </form>
                     </ul>
+
                 }
             }
         </div>
@@ -87,7 +88,7 @@
             <ul class="list">
             @if(Model.InviteList.Count() == 0)
             {
-                <h1>No Invites</h1>
+                <h1 style="font-size: 24px;">No Invites</h1>
             }
             else
             {
@@ -105,7 +106,7 @@
     </div>
     <div class="left mt-4">
         <h1>Selected Month: @HttpContext.Session.GetInt32("SelectedMonth")</h1>
-        <table>
+        <table class="mt-2">
             @{
                 int? daysInMonth = HttpContext.Session.GetInt32("DayAmount");
                 int currentDay = 1;
@@ -128,13 +129,17 @@
                         }
                         else
                         {
+                            if(currentDay <= daysInMonth)
+                            {
                             <td>
                                 <form method="post">
-                                        <button type="submit" class="text-warning" asp-page-handler="getdayinfo" asp-route-daynumber="@(currentDay <= daysInMonth ? currentDay.ToString() : "")">
+                                        <button type="submit" class="text-info" asp-page-handler="getdayinfo" asp-route-daynumber="@(currentDay.ToString())">
                                         @(currentDay <= daysInMonth ? currentDay.ToString() : "")
                                     </button>
                                 </form>
                             </td>
+                            }
+                            
                         }
                         currentDay++;
                     }
@@ -144,6 +149,7 @@
         <form method="post">
             <button type="submit" class="left-arrow-button mt-2" asp-page-handler="prevmonth"></button>
             <button type="submit" class="arrow-button mt-2" asp-page-handler="nextmonth"></button>
+            <button type="submit" class="btn btn-info btm-sm" asp-page-handler="getdayinfo" asp-route-daynumber="99">Show all records</button>
         </form>
         <div>
             @if(HttpContext.Session.GetInt32("SelectedDay") > 31)
@@ -203,7 +209,7 @@
 
 @functions{
 
-    public class MainTableModel: UserPageModel
+    public class MainTableModel: UserPageModel 
     {
 
         //fills to manage databases
@@ -533,7 +539,7 @@
                         MonthNumber = (int)tempSelectedMonth,
                         DayAmount = MonthInfo.monthDays[MonthInfo.monthDictionary[(int)tempSelectedMonth]],
                         Meetings = new List<Record>(),
-                        CurrentDay = 999
+                        CurrentDay = DateTime.Now.Day
                     };
             }
             else
@@ -576,8 +582,12 @@
             }
 
             //Records
+            RecordsList = Context.Records.Where(obj => (obj.RecordCreatorId == user.Id || obj.RelatedUserId == user.Id) && obj.MonthNumber == Month.MonthNumber).ToList();
+            List<Record> tempRecords = new List<Record>();
             foreach(string tempGroup in GroupList)
-                RecordsList = Context.Records.Where(obj => (obj.RecordCreatorId == user.Id || obj.RelatedUserId == user.Id || obj.GroupName==tempGroup) && obj.MonthNumber == Month.MonthNumber ).ToList();
+                tempRecords = Context.Records.Where(obj => obj.GroupName==tempGroup && obj.MonthNumber == Month.MonthNumber ).ToList();
+            foreach (Record tempRec in tempRecords)
+                RecordsList.Add(tempRec);
         }
     }
 }
