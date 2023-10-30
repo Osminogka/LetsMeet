@@ -69,7 +69,6 @@
         public int CurrentPage { get; set; } = 1;
         public int ItemsPerPage { get; set; } = 10;
         public int TotalItems { get; set; } = 0;
-
         public int TotalPages
         {
             get
@@ -91,8 +90,8 @@
 
         private async Task<List<string>> GetPagedUser()
         {
-            User = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            UsersNames = ContextUser.Users.Select(obj => obj.UserName).Where(obj => obj != User.UserName).ToList();
+            //User = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            //UsersNames = ContextUser.Users.Select(obj => obj.UserName).Where(obj => obj != User.UserName).ToList();
             List<string> FinalList = new List<string>();
 
             int startIndex = (CurrentPage - 1) * ItemsPerPage;
