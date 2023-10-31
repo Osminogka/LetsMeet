@@ -125,34 +125,79 @@
             padding: 10px 20px; /* Padding for button size */
             font-size: 16px; /* Font size */
             cursor: pointer;
+            }
+
+            /* Add a right arrow using CSS content property */
+            .arrow-button::before {
+                content: '\2192'; /* Unicode character for right arrow */
+                margin-left: 10px; /* Space between arrow and text */
+            }
+
+            /* Style for the left arrow button */
+            .left-arrow-button {
+                background-color: #0074d9; /* Background color */
+                color: #fff; /* Text color */
+                border: none;
+                padding: 10px 20px; /* Padding for button size */
+                font-size: 16px; /* Font size */
+                cursor: pointer;
+            }
+
+            /* Add a left arrow using CSS content property */
+            .left-arrow-button::before {
+                content: '\2190'; /* Unicode character for left arrow */
+                margin-right: 10px; /* Space between arrow and text */
+            }
+            .beautiful-footer {
+                background-color: #333; /* Background color */
+                color: #fff; /* Text color */
+                text-align: center; /* Center-align text */
+                padding: 20px; /* Add some padding for spacing */
+                font-size: 18px; /* Font size */
+                font-weight: bold; /* Font weight */
+            }
+
+            .beautiful-footer p {
+                margin: 0; /* Remove default margin for the paragraph */
+            }
+            .footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
         }
 
-        /* Add a right arrow using CSS content property */
-        .arrow-button::before {
-            content: '\2192'; /* Unicode character for right arrow */
-            margin-left: 10px; /* Space between arrow and text */
+        .content {
+            padding: 20px;
         }
 
-        /* Style for the left arrow button */
-        .left-arrow-button {
-            background-color: #0074d9; /* Background color */
-            color: #fff; /* Text color */
-            border: none;
-            padding: 10px 20px; /* Padding for button size */
-            font-size: 16px; /* Font size */
-            cursor: pointer;
-        }
-
-        /* Add a left arrow using CSS content property */
-        .left-arrow-button::before {
-            content: '\2190'; /* Unicode character for left arrow */
-            margin-right: 10px; /* Space between arrow and text */
+        .footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
         }
         </style>
     </head>
     <body>
-        <div class="m-2">
+        <div class="content">
             @RenderBody()
         </div>
+        <div class="mt-5"/>
     </body>
+    <footer class="beautiful-footer footer">
+        <p>Created by David Korobchenko (The Xoxol)</p>
+    </footer>
+
 </html>

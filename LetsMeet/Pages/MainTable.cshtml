@@ -3,7 +3,8 @@
 
 <header>
     <div class="header-container">
-        <h1 class="center-header text-white">Let's meet!</h1>
+        <h1 class="text-light">@HttpContext.User.Identity.Name</h1>
+        <h1 class="center-header text-white">That's time!</h1>
         <a class="left-link right-header btn btn-danger" href="logout">Log Out</a>
     </div>
     <script>
@@ -420,7 +421,7 @@
             if (FriendName.StartsWith("Group/$/"))
             {
                 FriendName = FriendName.Substring("Group/$/".Length);
-                var tempFriendRecord = Context.Groups.FirstOrDefault(obj => obj.GroupName == FriendName && obj.CreatorName == tempUserLocal.UserName);
+                var tempFriendRecord = Context.GroupRecords.FirstOrDefault(obj => obj.GroupName == FriendName && obj.UserName == tempUserLocal.UserName);
                 if (tempFriendRecord == null)
                 {
                     ModelState.AddModelError("RecordCreateError", "Invalid group");

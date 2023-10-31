@@ -3,8 +3,11 @@
 
 
 <div>
+    <form method="get" asp-page="/addfriends"  asp-route-parameterName="">
          <label>Provide friend name</label>
-         <input class="form-control" asp-for="UserName" />
+         <input class="form-control" name="UserName" />
+         <button type="submit" class="btn btn-info mt-2">Search</button>
+    </form>
 </div>
 
 @foreach(string u in Model.UsersNames)
@@ -17,8 +20,7 @@
         </div>
 
         <form id="@u" method="post">
-            <input type="hidden" asp-for="@Model.FriendUserName" value="@u"/>
-            <input type="hidden" name="MainUserId" value="@Model.User.Id" />
+            <input type="hidden" asp-for="@Model.FriendUserName" value="@u"/> 
             <span class="card-text p-1">
                 <button type="submit" class="btn btn-success btn-sm pull-right" style="float:right">
                     Add To Friends
@@ -53,8 +55,6 @@
 
         public List<string> UsersNames = new List<string>();
 
-        [BindProperty]
-        public string UserName { get; set; } = String.Empty;
 
         [BindProperty]
         public string FriendUserName { get; set; } = string.Empty;
@@ -77,8 +77,19 @@
             }
         }
 
-        public async Task OnGetAsync(int? tpage)
+        public async Task OnGetAsync(string? username, int? tpage)
         {
+            if(!string.IsNullOrEmpty(username))
+            {
+                User tempUser = ContextUser.Users.SingleOrDefault(obj => obj.UserName == username);
+                if (tempUser == null)
+                    return;
+
+                UsersNames.Add(username);
+                TotalItems = 1;
+                return;
+            }
+
             if (tpage.HasValue)
             {
                 CurrentPage = tpage.Value;

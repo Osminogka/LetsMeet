@@ -2,8 +2,11 @@
 @model JoinGroupModel
 
 <div>
+         <form method="get" asp-page="/joingroup"  asp-route-parameterName="">
          <label>Provide group name</label>
-         <input class="form-control" asp-for="GroupName" />
+         <input class="form-control" name="GroupName" />
+         <button type="submit" class="btn btn-info mt-2">Search</button>
+    </form>
 </div>
 
 @foreach(string u in Model.GroupNames)
@@ -67,8 +70,19 @@
         }
 
 
-        public async Task OnGetAsync(int? tpage)
+        public async Task OnGetAsync(int? tpage, string? groupname)
         {
+            if (!string.IsNullOrEmpty(groupname))
+            {
+                GroupRecords tempUser = Context.GroupRecords.SingleOrDefault(obj => obj.GroupName == groupname && obj.UserName != HttpContext.User.Identity.Name);
+                if (tempUser != null)
+                    return;
+
+
+                GroupNames.Add(groupname);
+                TotalItems = 1;
+                return;
+            }
             if (tpage.HasValue)
                 CurrentPage = tpage.Value;
 

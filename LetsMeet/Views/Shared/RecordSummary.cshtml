@@ -1,6 +1,6 @@
 ﻿@model Record
 
-<div class="card card-outline-primary m-1 p-1" style="width: 400px; height: 100px;">
+<div class="card card-outline-primary m-1 p-1" style="width: 400px;">
     <div>
         Day: @Model.DayNumber, Month: @Model.MonthNumber
     </div>
@@ -12,7 +12,8 @@
         }
         else
         {
-            @Model.CreaterUserName
+            @(Model.CreaterUserName)
+            <div>for user: @Model.RelatedUserName</div>
         }
     </div>
     <div>
