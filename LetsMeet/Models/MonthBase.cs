@@ -55,6 +55,11 @@ namespace LetsMeet.Models
         [Required(ErrorMessage = "Creator unknown")]
         public string CreaterUserName { get; set; } = String.Empty;
 
+        public TimeSpan Time { get; set; }
+
+        [Required]
+        public string Importance { get; set; } = String.Empty;
+
         public string GroupName {get;set;}
 
         public string RelatedUserName { get; set; } = String.Empty;

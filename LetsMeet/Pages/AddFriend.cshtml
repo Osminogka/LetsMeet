@@ -120,7 +120,14 @@
         private async Task<int> GetTotalUsers()
         {
             User = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            UsersNames = ContextUser.Users.Select(obj => obj.UserName).Where(obj => obj != User.UserName).ToList();
+            List<string> TempUsers = ContextUser.Users.Select(obj => obj.UserName).Where(obj => obj != User.UserName).ToList();
+            List<string> TempFriendList = Context.userFriendLists.Select(obj => obj.MainUserName == User.UserName ? obj.FriendUserName : obj.MainUserName).ToList();
+
+            foreach(string fName in TempUsers)
+            {
+                if (!TempFriendList.Contains(fName))
+                    UsersNames.Add(fName);
+            }
 
             return UsersNames.Count;
         }

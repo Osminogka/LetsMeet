@@ -30,6 +30,16 @@
     `;
             }
         }
+        function toggleInputs() {
+            var checkbox = document.getElementById("showInputsCheckbox");
+            var inputFields = document.getElementById("inputFields");
+
+            if (checkbox.checked) {
+                inputFields.style.display = "block";
+            } else {
+                inputFields.style.display = "none";
+            }
+        }
     </script>
 </header>
 
@@ -106,7 +116,7 @@
         </div>
     </div>
     <div class="left mt-4">
-        <h1>Selected Month: @HttpContext.Session.GetInt32("SelectedMonth")</h1>
+        <h1>Selected Month: @(MonthInfo.monthDictionary[(int)HttpContext.Session.GetInt32("SelectedMonth")])</h1>
         <table class="mt-2">
             @{
                 int? daysInMonth = HttpContext.Session.GetInt32("DayAmount");
@@ -171,6 +181,22 @@
                             <option value="@s">@s</option>
                         }
                     </select>
+                    <label>Select importance</label>
+                    <select asp-for="Importance" class="form-control mt-2">
+                        <option value="veryimportant">Very important</option>
+                        <option value="important">Important</option>
+                        <option value="notimportant">Not Important</option>                        
+                    </select>
+
+                    <input type="checkbox" id="showInputsCheckbox" onchange="toggleInputs()">
+                    <label for="showInputsCheckbox">Enter Time</label>
+                     <div id="inputFields" style="display: none;">
+                        <label>Enter hour:</label>
+                        <input type="text" asp-for="Hours" id="inputField1" />
+                        <label>Enter minutes:</label>
+                        <input type="text" asp-for="Minutes" id="inputField2" />
+                    </div>
+
                     <div class="form-group">
                         <label>Record name</label>
                         <input class="form-control" asp-for="RecordName" />
@@ -233,7 +259,12 @@
         public int? SelectedDay { get; set; } = 999;
 
         //Property to create record
-
+        [BindProperty]
+        public int Hours { get; set; }
+        [BindProperty]
+        public int Minutes { get; set; }
+        [BindProperty]
+        public string Importance { get; set; }
         [BindProperty]
         public string FriendName { get; set; }
         [BindProperty]
@@ -416,6 +447,14 @@
                 return Page();
             }
 
+            bool hasTime = false;
+            TimeSpan specifiedTime = new TimeSpan();
+            if(Hours >= 0 && Hours <= 23 && Minutes <= 59 && Minutes >= 0)
+            {
+                specifiedTime = new TimeSpan(Hours, Minutes, 0);
+                hasTime = true;
+            }
+
             Record tempRecord = new Record();
 
             if (FriendName.StartsWith("Group/$/"))
@@ -445,6 +484,8 @@
                 tempRecord.DayNumber = (int)tempSelectedDay;
                 tempRecord.MonthNumber = (int)tempSelectedMonth;
                 tempRecord.CreaterUserName = tempUserLocal.UserName;
+                tempRecord.Importance = Importance;
+                tempRecord.Time = hasTime ? specifiedTime : new TimeSpan();
             }
             else
             {
@@ -475,6 +516,8 @@
                 tempRecord.DayNumber = (int)tempSelectedDay;
                 tempRecord.MonthNumber = (int)tempSelectedMonth;
                 tempRecord.CreaterUserName = tempUserLocal.UserName;
+                tempRecord.Importance = Importance;
+                tempRecord.Time = hasTime ? specifiedTime : new TimeSpan();
             }
 
 

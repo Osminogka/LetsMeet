@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -57,6 +58,8 @@ namespace LetsMeet.Migrations
                     RecordId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreaterUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Time = table.Column<TimeSpan>(type: "time", nullable: false),
+                    Importance = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RelatedUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DayNumber = table.Column<int>(type: "int", nullable: false),

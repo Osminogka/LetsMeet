@@ -2,7 +2,7 @@
 
 <div class="card card-outline-primary m-1 p-1" style="width: 400px;">
     <div>
-        Day: @Model.DayNumber, Month: @Model.MonthNumber
+        Day: @Model.DayNumber, Month: @(MonthInfo.monthDictionary[Model.MonthNumber])
     </div>
     <div>
         Created by:
@@ -16,6 +16,13 @@
             <div>for user: @Model.RelatedUserName</div>
         }
     </div>
+    <div>
+        Importance: @Model.Importance
+    </div>
+    @if(Model.Time.Hours != 0 && Model.Time.Minutes != 0)
+    {
+        <div>Time: @Model.Time.Hours : @Model.Time.Minutes</div>
+    }
     <div>
         @Model.RecordName
     </div>
