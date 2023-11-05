@@ -23,13 +23,7 @@
             display: flex;
             justify-content: space-between;
             }
-            .left {
-            float: left;
-            width: 40%; /* Adjust the width as needed */
-            }
-            .right {
-                margin-left: 1%; /* Adjust the width value plus any desired spacing */
-            }
+
             h1 {
                 color: #333;
             }
@@ -60,17 +54,6 @@
             .group-list {
                 font-weight: bold;
                 margin-top: 10px;
-            }
-            .btn {
-                background-color: #3498db;
-                color: #fff;
-                padding: 8px 16px;
-                border: none;
-                border-radius: 3px;
-                cursor: pointer;
-            }
-            .btn.accept {
-                background-color: #2ecc71;
             }
             /* Left-align content and reduce font size */
             .section {
@@ -160,24 +143,7 @@
             .beautiful-footer p {
                 margin: 0; /* Remove default margin for the paragraph */
             }
-            .footer {
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 10px;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
 
-        .content {
-            padding: 20px;
-        }
 
         .footer {
             background-color: #333;
@@ -187,6 +153,24 @@
             position: fixed;
             bottom: 0;
             width: 100%;
+        }
+        .integer-input {
+            width: 100px; /* Set the width as needed */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center; /* Center the text in the input */
+        }
+
+        /* Apply additional styles when the input is in focus */
+        .integer-input:focus {
+            border-color: #007bff; /* Change border color on focus */
+        }
+        .uinfo-block{
+            width: 400px;
+            height: 1000px;
+            margin-top: 10px;
         }
         </style>
     </head>
