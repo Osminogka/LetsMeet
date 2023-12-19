@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace LetsMeet.Migrations
 {
-    public partial class Initial : Migration
+    public partial class Data : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

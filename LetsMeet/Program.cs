@@ -2,22 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using LetsMeet.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
-builder.Services.AddHttpClient("MainClient", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5000/");
-});
+
 
 builder.Services.AddDbContext<DataContext>(opts =>
 {
@@ -42,7 +32,7 @@ builder.Services.Configure<IdentityOptions>(opts =>
     opts.Password.RequireUppercase = true;
     opts.Password.RequireDigit = true;
     opts.User.RequireUniqueEmail = true;
-    opts.User.AllowedUserNameCharacters = "1234567890!@#$%&qwertyuiopasdfghjklzxcvbnm";
+    opts.User.AllowedUserNameCharacters = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_";
 });
 
 
@@ -65,13 +55,13 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
+
 app.UseStaticFiles();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapRazorPages();
-app.MapBlazorHub();
 
 IdentitySeedData.CreateRole(app.Services, app.Configuration);
 

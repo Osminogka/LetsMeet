@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LetsMeet.Migrations.User
 {
     [DbContext(typeof(UserContext))]
-    [Migration("20231014065223_Initial")]
-    partial class Initial
+    [Migration("20231219083717_Users")]
+    partial class Users
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

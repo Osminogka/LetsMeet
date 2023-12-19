@@ -14,7 +14,7 @@ namespace LetsMeet.Pages
         public UserManager<IdentityUser> UserManager;
         public DataContext Context;
 
-        public MainTableModel(UserManager<IdentityUser> usrManager, IHttpClientFactory httpClientFactory, DataContext ctx)
+        public MainTableModel(UserManager<IdentityUser> usrManager, DataContext ctx)
         {
             UserManager = usrManager;
             Context = ctx;
@@ -90,9 +90,10 @@ namespace LetsMeet.Pages
 
         public async Task<IActionResult> OnPostAddFriendAsync(string friendname)
         {
-            IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            string tempUserLocal = HttpContext.User.Identity.Name;
 
-            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserName == friendname && obj.FriendUserName == tempUserLocal.UserName);
+            List<FriendInvite> checkIfAnyInvites = Context.InviteList.Where(obj => (obj.MainUserName == friendname && obj.FriendUserName == tempUserLocal) ||
+                (obj.MainUserName == tempUserLocal && obj.FriendUserName == friendname)).ToList();
 
             if (!checkIfAnyInvites.Any())
             {
@@ -101,11 +102,12 @@ namespace LetsMeet.Pages
                 return Page();
             }
 
-            Context.InviteList.Remove(checkIfAnyInvites.First());
+            foreach (FriendInvite TempInvites in checkIfAnyInvites)
+                Context.InviteList.Remove(TempInvites);
 
             UserFriendList tempFriendRecord = new UserFriendList
             {
-                MainUserName = checkIfAnyInvites.First().FriendUserName,
+                MainUserName = tempUserLocal,
                 FriendUserName = friendname
             };
             await Context.userFriendLists.AddAsync(tempFriendRecord);
@@ -209,7 +211,6 @@ namespace LetsMeet.Pages
             if (FriendName == null)
             {
                 ModelState.AddModelError("RecordCreateError", "Unable to create record");
-                await LoadUserData();
                 return Page();
             }
 
@@ -218,7 +219,6 @@ namespace LetsMeet.Pages
             if ((0 >= tempSelectedDay || tempSelectedDay > 31) || (tempSelectedMonth < 1 || tempSelectedMonth > 12))
             {
                 ModelState.AddModelError("RecordCreateError", "unexisting day or month");
-                await LoadUserData();
                 return Page();
             }
 
@@ -239,7 +239,6 @@ namespace LetsMeet.Pages
                 if (tempFriendRecord == null)
                 {
                     ModelState.AddModelError("RecordCreateError", "Invalid group");
-                    await LoadUserData();
                     return Page();
                 }
 
@@ -247,7 +246,6 @@ namespace LetsMeet.Pages
                 if (checkForRecords != null)
                 {
                     ModelState.AddModelError("RecordCreateError", "Record with such name for this group already exist");
-                    await LoadUserData();
                     return Page();
                 }
 
@@ -271,7 +269,6 @@ namespace LetsMeet.Pages
                 if (tempFriendRecord == null)
                 {
                     ModelState.AddModelError("RecordCreateError", "You don't have this user in friend list");
-                    await LoadUserData();
                     return Page();
                 }
 
@@ -279,7 +276,6 @@ namespace LetsMeet.Pages
                 if (checkForRecords != null)
                 {
                     ModelState.AddModelError("RecordCreateError", "Record with such name and user already exist");
-                    await LoadUserData();
                     return Page();
                 }
 
@@ -299,7 +295,6 @@ namespace LetsMeet.Pages
             if (!tempRecord.IsValid())
             {
                 ModelState.AddModelError("RecordCreateError", "Error while creating record");
-                await LoadUserData();
                 return Page();
             }
 
@@ -342,11 +337,6 @@ namespace LetsMeet.Pages
 
         private async Task LoadUserData()
         {
-            var tempSelectedDay = HttpContext.Session.GetInt32("SelectedDay");
-
-            if (tempSelectedDay != null)
-                SelectedDay = tempSelectedDay;
-
             var tempSelectedMonth = HttpContext.Session.GetInt32("SelectedMonth");
             if (tempSelectedMonth != null)
             {
@@ -368,6 +358,11 @@ namespace LetsMeet.Pages
                     CurrentDay = DateTime.Now.Day
                 };
             }
+
+            var tempSelectedDay = HttpContext.Session.GetInt32("SelectedDay");
+
+            if (tempSelectedDay == null)
+                HttpContext.Session.SetInt32("SelectedDay", Month.CurrentDay);
 
             HttpContext.Session.SetInt32("SelectedMonth", Month.MonthNumber);
             HttpContext.Session.SetInt32("DayAmount", Month.DayAmount);

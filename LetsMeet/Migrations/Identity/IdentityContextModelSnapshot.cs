@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LetsMeet.Migrations
+namespace LetsMeet.Migrations.Identity
 {
     [DbContext(typeof(IdentityContext))]
     partial class IdentityContextModelSnapshot : ModelSnapshot
