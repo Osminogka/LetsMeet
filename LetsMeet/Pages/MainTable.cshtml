@@ -33,7 +33,11 @@
 </header>
 
 <div class="container">
+<<<<<<< Updated upstream
     <div class="right mt-4">
+=======
+    <div class="element">
+>>>>>>> Stashed changes
         <h2>Your Friends</h2>
         <div class="section">
             <ul class="list">
@@ -62,9 +66,7 @@
         <div class="section">
             @if(Model.GroupList.Count() == 0)
             {
-                    <ul class="list group-list">
-                        <li class="list-item">No groups</li>
-                    </ul>
+                <h1 style="font-size: 24px;">No groups</h1>
             }
             else
             {
@@ -104,9 +106,37 @@
             </ul>
         </div>
     </div>
+<<<<<<< Updated upstream
     <div class="left mt-4">
         <h1>Selected Month: @HttpContext.Session.GetInt32("SelectedMonth")</h1>
         <table class="mt-2">
+=======
+    <div class="element">
+        <h2>Your Records</h2>
+        @foreach (var tempRec in Model.RecordsList ?? Enumerable.Empty<Record>())
+        {
+            @if (HttpContext.Session.GetInt32("SelectedDay") > 31)
+            {
+                <div class="mt-2">
+                    @{
+                        await Html.RenderPartialAsync($"RecordSummary", tempRec);
+                    }
+                </div>
+            }
+            else if (HttpContext.Session.GetInt32("SelectedDay") == tempRec.DayNumber)
+            {
+                <div class="mt-3">
+                    @{
+                        await Html.RenderPartialAsync($"RecordSummary", tempRec);
+                    }
+                </div>
+            }
+        }
+    </div>
+    <div class="element">
+        <h1>Selected Month: @(MonthInfo.monthDictionary[(int)HttpContext.Session.GetInt32("SelectedMonth")])</h1>
+        <table>
+>>>>>>> Stashed changes
             @{
                 int? daysInMonth = HttpContext.Session.GetInt32("DayAmount");
                 int currentDay = 1;
@@ -170,6 +200,25 @@
                             <option value="@s">@s</option>
                         }
                     </select>
+<<<<<<< Updated upstream
+=======
+                    <label>Select importance</label>
+                    <select asp-for="Importance" class="form-control mt-2">
+                        <option value="veryimportant">Very important</option>
+                        <option value="important">Important</option>
+                        <option value="notimportant">Not Important</option>                        
+                    </select>
+
+                    <input type="checkbox" id="showInputsCheckbox" onchange="toggleInputs()">
+                    <label for="showInputsCheckbox">Enter Time</label>
+                     <div id="inputFields" style="display: none;">
+                        <label>Enter hour:</label>
+                        <input class="integer-input" type="number" asp-for="Hours" id="inputField1" step="1" inputmode="numeric" min="0" max="24" />
+                        <label>Enter minutes:</label>
+                        <input class="integer-input" type="number" asp-for="Minutes" id="inputField2" step="1" inputmode="numeric" min="0" max="60" />
+                    </div>
+
+>>>>>>> Stashed changes
                     <div class="form-group">
                         <label>Record name</label>
                         <input class="form-control" asp-for="RecordName" />
@@ -185,6 +234,7 @@
     </div>
 </div>
 
+<<<<<<< Updated upstream
  <div>
     @foreach (var tempRec in Model.RecordsList ?? Enumerable.Empty<Record>())
     {
@@ -591,3 +641,5 @@
         }
     }
 }
+=======
+>>>>>>> Stashed changes
