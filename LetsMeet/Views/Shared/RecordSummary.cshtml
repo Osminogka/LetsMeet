@@ -1,32 +1,37 @@
 ﻿@model Record
 
-<div class="card card-outline-primary m-1 p-1" style="width: 400px;">
-    <div>
-        Day: @Model.DayNumber, Month: @(MonthInfo.monthDictionary[Model.MonthNumber])
+<div class="notice">
+    <div class="notice-item">
+        <span>Day: <span class="highlight">@Model.DayNumber</span></span>
+        <span>Month: <span class="highlight">@(MonthInfo.monthDictionary[Model.MonthNumber])</span></span>
     </div>
-    <div>
-        Created by:
-        @if(Model.GroupName != "None")
-        {
-            @Model.GroupName
-        }
-        else
-        {
-            @(Model.CreaterUserName)
-            <div>for user: @Model.RelatedUserName</div>
-        }
+    <div class="notice-item">
+        <span>Created by: <span class="highlight">
+                @if (Model.GroupName != "None")
+                {
+                    @Model.GroupName
+                }
+                else
+                {
+                    @(Model.CreaterUserName)
+                }
+        </span></span>
     </div>
-    <div>
-        Importance: @Model.Importance
+    <div class="notice-item">
+        <span>For user: <span class="highlight">@Model.RelatedUserName</span></span>
     </div>
-    @if(Model.Time.Hours != 0 && Model.Time.Minutes != 0)
-    {
-        <div>Time: @Model.Time.Hours : @Model.Time.Minutes</div>
-    }
-    <div>
-        @Model.RecordName
+    <div class="notice-item">
+        <span>Importance: <span class="highlight">@Model.Importance</span></span>
     </div>
-    <div>
-        @Model.RecordString
+    <div class="notice-item">
+        <div class="notice-title">
+            <h2>@Model.RecordName</h2>
+        </div>
+        <div class="notice-content">
+            <p class="limited-width">
+                @Model.RecordString
+            </p>
+        </div>
     </div>
 </div>
+

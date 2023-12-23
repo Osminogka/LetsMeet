@@ -12,6 +12,10 @@ namespace LetsMeet.Pages
         public UserManager<IdentityUser> UserManager;
         public DataContext Context;
 
+
+        //Errors
+        public string GroupCreateError { get; set; }
+
         public CreateGroupModel(UserManager<IdentityUser> userManager, DataContext ctx)
         {
             UserManager = userManager;
@@ -20,7 +24,7 @@ namespace LetsMeet.Pages
 
         public async Task OnGetAsync()
         {
-            User = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
         }
 
         [BindProperty]
@@ -28,21 +32,30 @@ namespace LetsMeet.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            IdentityUser TempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            if(GroupName == string.Empty)
+            {
+                ModelState.AddModelError("GroupCreateError", "You cannot create group without name");
+                return Page();
+            }
+
+            string LocalUserName = HttpContext.User.Identity.Name;
             var GroupTest = Context.Groups.SingleOrDefault(g => g.GroupName == GroupName);
 
             if (GroupTest != null)
-                return Redirect("~/");
+            {
+                ModelState.AddModelError("GroupCreateError", "Group with such name already exist");
+                return Page();
+            }
 
             Group temporaryGroupObject = new Group
             {
-                CreatorName = TempUserLocal.UserName,
+                CreatorName = LocalUserName,
                 GroupName = GroupName
             };
 
             GroupRecords temporaryGroupRecord = new GroupRecords
             {
-                UserName = TempUserLocal.UserName,
+                UserName = LocalUserName,
                 GroupName = GroupName
             };
 

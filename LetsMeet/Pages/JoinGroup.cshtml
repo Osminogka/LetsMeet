@@ -1,6 +1,10 @@
 ﻿@page "/joingroup"
 @model JoinGroupModel
 
+@{
+    Layout = "_SecondaryLayout.cshtml";
+}
+
 <div>
          <form method="get" asp-page="/joingroup"  asp-route-parameterName="">
          <label>Provide group name</label>

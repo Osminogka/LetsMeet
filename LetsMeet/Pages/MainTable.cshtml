@@ -4,47 +4,48 @@
 <header>
     <div class="header-container">
         <h1 class="text-light">@HttpContext.User.Identity.Name</h1>
-        <h1 class="center-header text-white">That's time!</h1>
+        <h1 class="circled-title">That's time!</h1>
         <a class="left-link right-header btn btn-danger" href="logout">Log Out</a>
     </div>
-    <script>
-        function toggleSelect() {
-            var checkBox = document.getElementById('checkBox');
-            var selectBox = document.getElementById('selectBox');
-
-            if (checkBox.checked) {
-                // Change the select options when the checkbox is checked
-                selectBox.innerHTML = `
-                    @foreach(string s in Model.GroupList)
-                        {
-                            <option value="@(string.Concat("Group/$/", s))">@s</option>
-                        }
-                `;
-            } else {
-                // Restore the original select options when the checkbox is unchecked
-                selectBox.innerHTML = `
-                    @foreach(string s in Model.FriendList)
-                        {
-                            <option value="@s">@s</option>
-                        }
-    `;
-            }
-        }
-        function toggleInputs() {
-            var checkbox = document.getElementById("showInputsCheckbox");
-            var inputFields = document.getElementById("inputFields");
-
-            if (checkbox.checked) {
-                inputFields.style.display = "block";
-            } else {
-                inputFields.style.display = "none";
-            }
-        }
-    </script>
 </header>
 
-<div class="container">
-    <div class="element">
+<script>
+    function toggleSelect() {
+        var checkBox = document.getElementById('checkBox');
+        var selectBox = document.getElementById('selectBox');
+
+        if (checkBox.checked) {
+            // Change the select options when the checkbox is checked
+            selectBox.innerHTML = `
+    @foreach (string s in Model.GroupList)
+    {
+                                    <option value="@(string.Concat("Group/$/", s))">@s</option>
+    }
+                    `;
+        } else {
+            // Restore the original select options when the checkbox is unchecked
+            selectBox.innerHTML = `
+    @foreach (string s in Model.FriendList)
+    {
+                                    <option value="@s">@s</option>
+    }
+        `;
+        }
+    }
+    function toggleInputs() {
+        var checkbox = document.getElementById("showInputsCheckbox");
+        var inputFields = document.getElementById("inputFields");
+
+        if (checkbox.checked) {
+            inputFields.style.display = "block";
+        } else {
+            inputFields.style.display = "none";
+        }
+    }
+</script>
+
+<div class="container-main">
+    <div class="left">
         <h2>Your Friends</h2>
         <div class="section">
             <ul class="list">
@@ -113,7 +114,7 @@
             </ul>
         </div>
     </div>
-    <div class="element">
+    <div class="center">
         <h2>Your Records</h2>
         @foreach (var tempRec in Model.RecordsList ?? Enumerable.Empty<Record>())
         {
@@ -135,24 +136,69 @@
             }
         }
     </div>
-    <div class="element">
+    <div class="right">
         <h1>Selected Month: @(MonthInfo.monthDictionary[(int)HttpContext.Session.GetInt32("SelectedMonth")])</h1>
-        <table class="mt-2">
+        <table class="fixed-table">
+            <tr>
+                <td class="weekday">Sun</td>
+                <td class="weekday">Mon</td>
+                <td class="weekday">Tue</td>
+                <td class="weekday">Wed</td>
+                <td class="weekday">Thu</td>
+                <td class="weekday">Fri</td>
+                <td class="weekday">Sat</td>
+            </tr>
             @{
-                int? daysInMonth = HttpContext.Session.GetInt32("DayAmount");
+                int? daysInMonth = Model.Month.DayAmount;
                 int currentDay = 1;
                 int daysInWeek = 7; // Number of days in a week
+                int? currentMonth = HttpContext.Session.GetInt32("SelectedMonth");
             }
+
+            <tr>
+                @for (int j = 0; j < Model.Month.getFirstDay(); j++)
+                {
+                    <td></td>
+                }
+                @for (int i = Model.Month.getFirstDay(); i < daysInWeek; i++)
+                {
+                    if (currentDay == Model.Month.CurrentDay && currentMonth == Model.Month.RealMonthNumber)
+                    {
+                        <td>
+                            <form method="post">
+                                <button type="submit" class="custom-button-yellow" asp-page-handler="getdayinfo" asp-route-daynumber="@Model.Month.CurrentDay">
+                                    @(currentDay <= daysInMonth ? currentDay.ToString() : "")
+                                </button>
+                            </form>
+                        </td>
+                    }
+                    else
+                    {
+                        if (currentDay <= daysInMonth)
+                        {
+                            <td>
+                                <form method="post">
+                                    <button type="submit" class="custom-button" asp-page-handler="getdayinfo" asp-route-daynumber="@(currentDay.ToString())">
+                                        @(currentDay <= daysInMonth ? currentDay.ToString() : "")
+                                    </button>
+                                </form>
+                            </td>
+                        }
+
+                    }
+                    currentDay++;
+                }
+            </tr>
             @while (currentDay <= daysInMonth)
             {
                 <tr>
                     @for (int i = 0; i < daysInWeek; i++)
                     {
-                        if(currentDay == Model.Month.CurrentDay)
+                        if(currentDay == Model.Month.CurrentDay && currentMonth == Model.Month.RealMonthNumber)
                         {
-                            <td class="highlighted-cell">                                
+                            <td>                                
                                 <form method="post">
-                                    <button type="submit" class="text-warning" asp-page-handler="getdayinfo" asp-route-daynumber="@Model.Month.CurrentDay">
+                                    <button type="submit" class="custom-button-yellow" asp-page-handler="getdayinfo" asp-route-daynumber="@Model.Month.CurrentDay">
                                         @(currentDay <= daysInMonth ? currentDay.ToString() : "")
                                     </button>
                                 </form>
@@ -164,7 +210,7 @@
                             {
                             <td>
                                 <form method="post">
-                                        <button type="submit" class="text-info" asp-page-handler="getdayinfo" asp-route-daynumber="@(currentDay.ToString())">
+                                        <button type="submit" class="custom-button" asp-page-handler="getdayinfo" asp-route-daynumber="@(currentDay.ToString())">
                                         @(currentDay <= daysInMonth ? currentDay.ToString() : "")
                                     </button>
                                 </form>
@@ -189,44 +235,47 @@
             }
             else
             {
-                <h1>Selected day: @HttpContext.Session.GetInt32("SelectedDay")</h1>
-                <form method="post">
-                    <span asp-validation-for="RecordCreateError" class="text-danger"></span>
-                    <div>
-                        <input type="checkbox" id="checkBox" onclick="toggleSelect()" /> Mark the checkbox to create record for the group.
-                    </div>
-                    <select id="selectBox" asp-for="FriendName" class="form-control">
-                        @foreach(string s in Model.FriendList)
-                        {
-                            <option value="@s">@s</option>
-                        }
-                    </select>
-                    <label>Select importance</label>
-                    <select asp-for="Importance" class="form-control mt-2">
-                        <option value="veryimportant">Very important</option>
-                        <option value="important">Important</option>
-                        <option value="notimportant">Not Important</option>                        
-                    </select>
+                <h1>Selected day: @HttpContext.Session.GetInt32("SelectedDay")</h1>                
+                <button id="showFormButton" class="btn btn-warning mt-3">Create Record</button>
+                <div id="hiddenFormContainer">
+                    <form method="post" id="hiddenForm">
+                        <span asp-validation-for="RecordCreateError" class="text-danger"></span>
+                        <div>
+                            <input type="checkbox" id="checkBox" onclick="toggleSelect()" /> Mark the checkbox to create record for the group.
+                        </div>
+                        <select id="selectBox" asp-for="FriendName" class="form-control">
+                            @foreach(string s in Model.FriendList)
+                            {
+                                <option value="@s">@s</option>
+                            }
+                        </select>
+                        <label>Select importance</label>
+                        <select asp-for="Importance" class="form-control mt-2">
+                            <option value="veryimportant">Very important</option>
+                            <option value="important">Important</option>
+                            <option value="notimportant">Not Important</option>                        
+                        </select>
 
-                    <input type="checkbox" id="showInputsCheckbox" onchange="toggleInputs()">
-                    <label for="showInputsCheckbox">Enter Time</label>
-                     <div id="inputFields" style="display: none;">
-                        <label>Enter hour:</label>
-                        <input class="integer-input" type="number" asp-for="Hours" id="inputField1" step="1" inputmode="numeric" min="0" max="24" />
-                        <label>Enter minutes:</label>
-                        <input class="integer-input" type="number" asp-for="Minutes" id="inputField2" step="1" inputmode="numeric" min="0" max="60" />
-                    </div>
+                        <input type="checkbox" id="showInputsCheckbox" onchange="toggleInputs()">
+                        <label for="showInputsCheckbox">Enter Time</label>
+                         <div id="inputFields" style="display: none;">
+                            <label>Enter hour:</label>
+                            <input class="integer-input" type="number" asp-for="Hours" id="inputField1" step="1" inputmode="numeric" min="0" max="24" />
+                            <label>Enter minutes:</label>
+                            <input class="integer-input" type="number" asp-for="Minutes" id="inputField2" step="1" inputmode="numeric" min="0" max="60" />
+                        </div>
 
-                    <div class="form-group">
-                        <label>Record name</label>
-                        <input class="form-control" asp-for="RecordName" />
-                    </div>
-                    <div class="form-group">
-                        <label>Record content</label>
-                        <input class="form-control" asp-for="RecordDis" />
-                    </div>
-                    <button type="submit" class="btn btn-warning mt-3" asp-page-handler="createrecord">Create Record</button>
-                </form>
+                        <div class="form-group">
+                            <label>Record name</label>
+                            <input class="form-control" asp-for="RecordName" />
+                        </div>
+                        <div class="form-group">
+                            <label>Record content</label>
+                            <input class="form-control" asp-for="RecordDis" />
+                        </div>
+                        <button type="submit" class="btn btn-warning mt-3" asp-page-handler="createrecord">Create Record</button>
+                    </form>
+                </div>
             }
         </div>
     </div>

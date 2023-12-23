@@ -119,9 +119,9 @@ namespace LetsMeet.Pages
 
         public async Task<IActionResult> OnPostRejectFriendAsync(string friendname)
         {
-            IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            string LocalUserName = HttpContext.User.Identity.Name;
 
-            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserName == friendname && obj.FriendUserName == tempUserLocal.UserName);
+            var checkIfAnyInvites = Context.InviteList.Where(obj => obj.MainUserName == friendname && obj.FriendUserName == LocalUserName);
 
             if (!checkIfAnyInvites.Any())
             {
@@ -139,10 +139,10 @@ namespace LetsMeet.Pages
 
         public async Task<IActionResult> OnPostRemoveFriendAsync(string FriendName)
         {
-            IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            string LocalUserName = HttpContext.User.Identity.Name;
 
-            var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserName == tempUserLocal.UserName && obj.FriendUserName == FriendName)
-                       || (obj.MainUserName == FriendName && obj.FriendUserName == tempUserLocal.UserName)).First();
+            var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserName == LocalUserName && obj.FriendUserName == FriendName)
+                       || (obj.MainUserName == FriendName && obj.FriendUserName == LocalUserName)).First();
 
             if (tempRecord == null)
             {
@@ -166,9 +166,9 @@ namespace LetsMeet.Pages
         //LeaveGroup
         public async Task<IActionResult> OnPostLeaveGroupAsync(string groupname)
         {
-            IdentityUser TempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            string LocalUserName = HttpContext.User.Identity.Name;
 
-            var check = Context.GroupRecords.SingleOrDefault(obj => obj.GroupName == groupname && obj.UserName == TempUserLocal.UserName);
+            var check = Context.GroupRecords.SingleOrDefault(obj => obj.GroupName == groupname && obj.UserName == LocalUserName);
 
             if (check == null)
             {
@@ -207,107 +207,142 @@ namespace LetsMeet.Pages
         //createrecord
         public async Task<IActionResult> OnPostCreateRecordAsync()
         {
-            IdentityUser tempUserLocal = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            if (FriendName == null)
+            try
             {
-                ModelState.AddModelError("RecordCreateError", "Unable to create record");
-                return Page();
-            }
+                await LoadUserData();
 
-            int tempSelectedDay = HttpContext.Session.GetInt32("SelectedDay") == null ? 99 : (int)HttpContext.Session.GetInt32("SelectedDay");
-            int tempSelectedMonth = HttpContext.Session.GetInt32("SelectedMonth") == null ? 99 : (int)HttpContext.Session.GetInt32("SelectedMonth");
-            if ((0 >= tempSelectedDay || tempSelectedDay > 31) || (tempSelectedMonth < 1 || tempSelectedMonth > 12))
-            {
-                ModelState.AddModelError("RecordCreateError", "unexisting day or month");
-                return Page();
-            }
-
-            bool hasTime = false;
-            TimeSpan specifiedTime = new TimeSpan();
-            if (Hours >= 0 && Hours <= 23 && Minutes <= 59 && Minutes >= 0)
-            {
-                specifiedTime = new TimeSpan(Hours, Minutes, 0);
-                hasTime = true;
-            }
-
-            Record tempRecord = new Record();
-
-            if (FriendName.StartsWith("Group/$/"))
-            {
-                FriendName = FriendName.Substring("Group/$/".Length);
-                var tempFriendRecord = Context.GroupRecords.FirstOrDefault(obj => obj.GroupName == FriendName && obj.UserName == tempUserLocal.UserName);
-                if (tempFriendRecord == null)
+                string LocalUserName = HttpContext.User.Identity.Name;
+                if (FriendName == null)
                 {
-                    ModelState.AddModelError("RecordCreateError", "Invalid group");
+                    ModelState.AddModelError("RecordCreateError", "Unable to create record");
                     return Page();
                 }
 
-                var checkForRecords = Context.Records.SingleOrDefault(obj => obj.CreaterUserName == tempUserLocal.UserName && obj.GroupName == FriendName && obj.RecordName == RecordName);
-                if (checkForRecords != null)
+                int tempSelectedDay = HttpContext.Session.GetInt32("SelectedDay") == null ? 99 : (int)HttpContext.Session.GetInt32("SelectedDay");
+                int tempSelectedMonth = HttpContext.Session.GetInt32("SelectedMonth") == null ? 99 : (int)HttpContext.Session.GetInt32("SelectedMonth");
+                if ((0 >= tempSelectedDay || tempSelectedDay > 31) || (tempSelectedMonth < 1 || tempSelectedMonth > 12))
                 {
-                    ModelState.AddModelError("RecordCreateError", "Record with such name for this group already exist");
+                    ModelState.AddModelError("RecordCreateError", "unexisting day or month");
                     return Page();
                 }
 
-                tempRecord.CreaterUserName = tempUserLocal.UserName;
-                tempRecord.RelatedUserName = "none";
-                tempRecord.RecordName = RecordName;
-                tempRecord.RecordString = RecordDis;
-                tempRecord.GroupName = FriendName;
-                tempRecord.DayNumber = (int)tempSelectedDay;
-                tempRecord.MonthNumber = (int)tempSelectedMonth;
-                tempRecord.CreaterUserName = tempUserLocal.UserName;
-                tempRecord.Importance = Importance;
-                tempRecord.Time = hasTime ? specifiedTime : new TimeSpan();
+                if(RecordDis == null)
+                {
+                    ModelState.AddModelError("RecordCreateError", "Record content cannot be null");
+                    return Page();
+                }
+
+                if(RecordDis.Length > 250)
+                {
+                    ModelState.AddModelError("RecordCreateError", "Record content is too long");
+                    return Page();
+                }
+
+                if(RecordName == null)
+                {
+                    ModelState.AddModelError("RecordCreateError", "Record name cannot be null");
+                    return Page();
+                }
+
+                if(RecordName.Length > 60)
+                {
+                    ModelState.AddModelError("RecordCreateError", "Record name length is invalid");
+                    return Page();
+                }
+
+                bool hasTime = false;
+                TimeSpan specifiedTime = new TimeSpan();
+                if (Hours >= 0 && Hours <= 23 && Minutes <= 59 && Minutes >= 0)
+                {
+                    specifiedTime = new TimeSpan(Hours, Minutes, 0);
+                    hasTime = true;
+                }
+
+                Record tempRecord = new Record();
+
+                if (FriendName.StartsWith("Group/$/"))
+                {
+                    FriendName = FriendName.Substring("Group/$/".Length);
+                    var tempFriendRecord = Context.GroupRecords.FirstOrDefault(obj => obj.GroupName == FriendName && obj.UserName == LocalUserName);
+                    if (tempFriendRecord == null)
+                    {
+                        ModelState.AddModelError("RecordCreateError", "Invalid group");
+                        return Page();
+                    }
+
+                    var checkForRecords = Context.Records.SingleOrDefault(obj => obj.CreaterUserName == LocalUserName && obj.GroupName == FriendName && obj.RecordName == RecordName);
+                    if (checkForRecords != null)
+                    {
+                        ModelState.AddModelError("RecordCreateError", "Record with such name for this group already exist");
+                        return Page();
+                    }
+
+                    tempRecord.CreaterUserName = LocalUserName;
+                    tempRecord.RelatedUserName = "none";
+                    tempRecord.RecordName = RecordName;
+                    tempRecord.RecordString = RecordDis;
+                    tempRecord.GroupName = FriendName;
+                    tempRecord.DayNumber = (int)tempSelectedDay;
+                    tempRecord.MonthNumber = (int)tempSelectedMonth;
+                    tempRecord.CreaterUserName = LocalUserName;
+                    tempRecord.Importance = Importance;
+                    tempRecord.Time = hasTime ? specifiedTime : new TimeSpan();
+                }
+                else
+                {
+                    IdentityUser tempFriend = await UserManager.FindByNameAsync(FriendName);
+                    var tempFriendRecord = Context.userFriendLists.FirstOrDefault(obj => (obj.MainUserName == LocalUserName && obj.FriendUserName == FriendName)
+                           || (obj.MainUserName == FriendName && obj.FriendUserName == LocalUserName));
+
+                    if (tempFriendRecord == null)
+                    {
+                        ModelState.AddModelError("RecordCreateError", "You don't have this user in friend list");
+                        return Page();
+                    }
+
+                    var checkForRecords = Context.Records.SingleOrDefault(obj => obj.CreaterUserName == LocalUserName && obj.RelatedUserName == FriendName && obj.RecordName == RecordName);
+                    if (checkForRecords != null)
+                    {
+                        ModelState.AddModelError("RecordCreateError", "Record with such name and user already exist");
+                        return Page();
+                    }
+
+                    tempRecord.CreaterUserName = LocalUserName;
+                    tempRecord.RelatedUserName = FriendName;
+                    tempRecord.RecordName = RecordName;
+                    tempRecord.RecordString = RecordDis;
+                    tempRecord.GroupName = "None";
+                    tempRecord.DayNumber = (int)tempSelectedDay;
+                    tempRecord.MonthNumber = (int)tempSelectedMonth;
+                    tempRecord.CreaterUserName = LocalUserName;
+                    tempRecord.Importance = Importance;
+                    tempRecord.Time = hasTime ? specifiedTime : new TimeSpan();
+                }
+
+
+                if (!tempRecord.IsValid())
+                {
+                    ModelState.AddModelError("RecordCreateError", "Error while creating record");
+                    return Page();
+                }
+
+                await Context.Records.AddAsync(tempRecord);
+                await Context.SaveChangesAsync();
+
+                return RedirectToPage();
             }
-            else
+            catch(Exception ex)
             {
-                IdentityUser tempFriend = await UserManager.FindByNameAsync(FriendName);
-                var tempFriendRecord = Context.userFriendLists.FirstOrDefault(obj => (obj.MainUserName == tempUserLocal.UserName && obj.FriendUserName == FriendName)
-                       || (obj.MainUserName == FriendName && obj.FriendUserName == tempUserLocal.UserName));
-
-                if (tempFriendRecord == null)
-                {
-                    ModelState.AddModelError("RecordCreateError", "You don't have this user in friend list");
-                    return Page();
-                }
-
-                var checkForRecords = Context.Records.SingleOrDefault(obj => obj.CreaterUserName == tempUserLocal.UserName && obj.RelatedUserName == FriendName && obj.RecordName == RecordName);
-                if (checkForRecords != null)
-                {
-                    ModelState.AddModelError("RecordCreateError", "Record with such name and user already exist");
-                    return Page();
-                }
-
-                tempRecord.CreaterUserName = tempUserLocal.UserName;
-                tempRecord.RelatedUserName = FriendName;
-                tempRecord.RecordName = RecordName;
-                tempRecord.RecordString = RecordDis;
-                tempRecord.GroupName = "None";
-                tempRecord.DayNumber = (int)tempSelectedDay;
-                tempRecord.MonthNumber = (int)tempSelectedMonth;
-                tempRecord.CreaterUserName = tempUserLocal.UserName;
-                tempRecord.Importance = Importance;
-                tempRecord.Time = hasTime ? specifiedTime : new TimeSpan();
+                Console.WriteLine($"An error occurred while create a record: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
             }
-
-
-            if (!tempRecord.IsValid())
-            {
-                ModelState.AddModelError("RecordCreateError", "Error while creating record");
-                return Page();
-            }
-
-            await Context.Records.AddAsync(tempRecord);
-            await Context.SaveChangesAsync();
-
-            return RedirectToPage();
         }
 
         //prevmonth
         public async Task<IActionResult> OnPostPrevMonthAsync()
         {
             var tempSelectedMonth = HttpContext.Session.GetInt32("SelectedMonth");
+            HttpContext.Session.SetInt32("SelectedDay", 1);
 
             if (tempSelectedMonth - 1 <= 0)
                 HttpContext.Session.SetInt32("SelectedMonth", 12);
@@ -321,6 +356,7 @@ namespace LetsMeet.Pages
         public async Task<IActionResult> OnPostNextMonthAsync()
         {
             var tempSelectedMonth = HttpContext.Session.GetInt32("SelectedMonth");
+            HttpContext.Session.SetInt32("SelectedDay", 1);
             if (tempSelectedMonth + 1 > 12)
                 HttpContext.Session.SetInt32("SelectedMonth", 1);
             else
@@ -342,6 +378,7 @@ namespace LetsMeet.Pages
             {
                 Month = new MonthBase()
                 {
+                    RealMonthNumber = DateTime.Today.Month,
                     MonthNumber = (int)tempSelectedMonth,
                     DayAmount = MonthInfo.monthDays[MonthInfo.monthDictionary[(int)tempSelectedMonth]],
                     Meetings = new List<Record>(),
@@ -352,6 +389,7 @@ namespace LetsMeet.Pages
             {
                 Month = new MonthBase()
                 {
+                    RealMonthNumber = DateTime.Today.Month,
                     MonthNumber = DateTime.Today.Month,
                     DayAmount = MonthInfo.monthDays[DateTime.Now.ToString("MMMM")],
                     Meetings = new List<Record>(),
@@ -365,7 +403,6 @@ namespace LetsMeet.Pages
                 HttpContext.Session.SetInt32("SelectedDay", Month.CurrentDay);
 
             HttpContext.Session.SetInt32("SelectedMonth", Month.MonthNumber);
-            HttpContext.Session.SetInt32("DayAmount", Month.DayAmount);
 
             IdentityUser user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
 

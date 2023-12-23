@@ -4,13 +4,18 @@
     <head>
         <title>@ViewBag.Title</title>
         <link href="~/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
-        <link rel="stylesheet" type="text/css" href="~/MainStyle.css" />
-        <link rel="stylesheet" type="text/css" href="~/ContainerStyle.css" />
+        <link rel="stylesheet" type="text/css" href="css/Main.css" />
+        <link rel="stylesheet" type="text/css" href="css/ContainerStyle.css" />
+        <link rel="stylesheet" type="text/css" href="css/Header.css" />
+        <link rel="stylesheet" type="text/css" href="css/Record.css" />
+        <link rel="stylesheet" type="text/css" href="css/RecordCreate.css" />
         <meta charset="UTF-8">      
     </head>
     <body>
         <div>
             @RenderBody()
         </div>
+        <div class="mt-4" />
+        <script src="js/RecordCreate.js"></script>
     </body>
 </html>

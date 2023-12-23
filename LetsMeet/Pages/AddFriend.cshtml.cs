@@ -93,23 +93,26 @@ namespace LetsMeet.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            IdentityUser LocalUser = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            string LocalUserName = HttpContext.User.Identity.Name;
+
+            if(FriendUserName == LocalUserName)
+                return Redirect("~/");
 
             try
             {
-                var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserName == LocalUser.UserName && obj.FriendUserName == FriendUserName)
-                        || (obj.MainUserName == FriendUserName && obj.FriendUserName == LocalUser.UserName));
+                var tempRecord = Context.userFriendLists.Where(obj => (obj.MainUserName == LocalUserName && obj.FriendUserName == FriendUserName)
+                        || (obj.MainUserName == FriendUserName && obj.FriendUserName == LocalUserName));
 
                 if (tempRecord.Any())
                     return Redirect("~/");
 
                 FriendInvite invite = new FriendInvite
                 {
-                    MainUserName = LocalUser.UserName,
+                    MainUserName = LocalUserName,
                     FriendUserName = FriendUserName
                 };
 
-                FriendInvite? check = Context.InviteList.SingleOrDefault(obj => obj.MainUserName == LocalUser.UserName && obj.FriendUserName == FriendUserName);
+                FriendInvite? check = Context.InviteList.SingleOrDefault(obj => obj.MainUserName == LocalUserName && obj.FriendUserName == FriendUserName);
 
                 if (check != null)
                     return Redirect("~/");

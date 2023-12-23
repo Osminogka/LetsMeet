@@ -7,10 +7,25 @@ namespace LetsMeet.Models
 {
     public class MonthBase
     {
+        public int RealMonthNumber { get; set; }
         public int MonthNumber { get; set; }
         public int DayAmount { get; set; }
         public List<Record>? Meetings { get; set; }
         public int CurrentDay { get; set; }
+
+        public int getFirstDay()
+        {
+            int year = DateTime.Now.Year; // Replace with the desired year
+            int month = this.MonthNumber; // Replace with the desired month (1 for January, 2 for February, etc.)
+
+            // Create a DateTime object representing the first day of the specified month and year
+            DateTime firstDayOfMonth = new DateTime(year, month, 1);
+
+            // Get the day of the week for the first day of the month (Sunday = 0, Monday = 1, ..., Saturday = 6)
+            int dayNumber = ((int)firstDayOfMonth.DayOfWeek + 6) % 7 + 1; // Adjusting to start with Monday as day 1
+
+            return dayNumber;
+        }
     }
 
     public class MonthInfo

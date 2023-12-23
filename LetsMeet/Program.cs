@@ -42,8 +42,6 @@ builder.Services.AddAuthentication(opts =>
     opts.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 }).AddCookie(opts =>
 {
-    opts.Events.DisableRedirectForPath(e => e.OnRedirectToLogin, "/api", StatusCodes.Status401Unauthorized);
-    opts.Events.DisableRedirectForPath(e => e.OnRedirectToAccessDenied, "/api", StatusCodes.Status403Forbidden);
     opts.LoginPath = "/login";
 });
 
@@ -60,7 +58,6 @@ app.UseStaticFiles();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
 app.MapRazorPages();
 
 IdentitySeedData.CreateRole(app.Services, app.Configuration);

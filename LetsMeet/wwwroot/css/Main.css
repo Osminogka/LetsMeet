@@ -1,15 +1,4 @@
-﻿header {
-    background-color: #3498db;
-    color: #fff;
-    text-align: center;
-    padding: 20px 0;
-}
-
-h1 {
-    color: #333;
-}
-
-.section {
+﻿.section {
     margin-top: 17px;
     padding: 10px;
     border: 1px solid #ccc;
@@ -30,13 +19,13 @@ h1 {
     border-bottom: 1px solid #eee;
 }
 
-    .list-item:last-child {
-        border-bottom: none;
-    }
+.list-item:last-child {
+    border-bottom: none;
+}
 
-    .list-item .name {
-        font-weight: bold;
-    }
+.list-item .name {
+    font-weight: bold;
+}
 
 .group-list {
     font-weight: bold;
@@ -53,25 +42,6 @@ h1 {
 
 .group-list {
     font-size: 14px;
-}
-
-/* Style the table cells (td) */
-td {
-    padding: 8px;
-    border: 1px solid #000; /* Add inner borders to table cells */
-}
-
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #3498db;
-    padding: 10px;
-}
-
-.center-header {
-    text-align: center;
-    flex: 1;
 }
 
 .left-link {
@@ -94,11 +64,11 @@ td {
     cursor: pointer;
 }
 
-    /* Add a right arrow using CSS content property */
-    .arrow-button::before {
-        content: '\2192'; /* Unicode character for right arrow */
-        margin-left: 10px; /* Space between arrow and text */
-    }
+/* Add a right arrow using CSS content property */
+.arrow-button::before {
+    content: '\2192'; /* Unicode character for right arrow */
+    margin-left: 10px; /* Space between arrow and text */
+}
 
 /* Style for the left arrow button */
 .left-arrow-button {
@@ -110,11 +80,11 @@ td {
     cursor: pointer;
 }
 
-    /* Add a left arrow using CSS content property */
-    .left-arrow-button::before {
-        content: '\2190'; /* Unicode character for left arrow */
-        margin-right: 10px; /* Space between arrow and text */
-    }
+/* Add a left arrow using CSS content property */
+.left-arrow-button::before {
+    content: '\2190'; /* Unicode character for left arrow */
+    margin-right: 10px; /* Space between arrow and text */
+}
 
 .integer-input {
     width: 100px; /* Set the width as needed */
@@ -125,7 +95,8 @@ td {
     text-align: center; /* Center the text in the input */
 }
 
-    /* Apply additional styles when the input is in focus */
-    .integer-input:focus {
-        border-color: #007bff; /* Change border color on focus */
-    }
+/* Apply additional styles when the input is in focus */
+.integer-input:focus {
+    border-color: #007bff; /* Change border color on focus */
+}
+

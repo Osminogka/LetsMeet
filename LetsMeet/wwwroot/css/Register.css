@@ -1,0 +1,42 @@
+﻿.register-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+    .register-container h1 {
+        font-size: 32px;
+        color: #3498db;
+        margin-bottom: 20px;
+    }
+
+    .register-container h2 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+.register-form input[type="text"],
+.register-form input[type="password"],
+.register-form input[type="email"],
+.register-form button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.register-form button {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .register-form button:hover {
+        background-color: #2980b9;
+    }

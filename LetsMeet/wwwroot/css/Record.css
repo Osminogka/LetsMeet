@@ -1,0 +1,37 @@
+﻿/* Notice container styles */
+.notice {
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+/* Highlighted text styles */
+.highlight {
+    color: #e67e22;
+    font-weight: bold;
+}
+
+/* Notice item styles */
+.notice-item {
+    margin-bottom: 10px;
+}
+
+/* Title styles */
+.notice-title h2 {
+    color: #3498db;
+    margin: 5px 0;
+    font-size: 18px; /* Adjust the font size here */
+}
+
+/* Content styles */
+.notice-content p {
+    color: #555;
+    line-height: 1.5;
+}
+.limited-width {
+    max-width: 400px; /* Set your desired maximum width */
+    overflow-wrap: break-word; /* Use this property for newer browser support */
+}
