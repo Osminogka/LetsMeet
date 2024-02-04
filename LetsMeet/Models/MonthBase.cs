@@ -15,14 +15,12 @@ namespace LetsMeet.Models
 
         public int getFirstDay()
         {
-            int year = DateTime.Now.Year; // Replace with the desired year
-            int month = this.MonthNumber; // Replace with the desired month (1 for January, 2 for February, etc.)
+            int year = DateTime.Now.Year;
+            int month = this.MonthNumber;
 
-            // Create a DateTime object representing the first day of the specified month and year
             DateTime firstDayOfMonth = new DateTime(year, month, 1);
 
-            // Get the day of the week for the first day of the month (Sunday = 0, Monday = 1, ..., Saturday = 6)
-            int dayNumber = ((int)firstDayOfMonth.DayOfWeek + 6) % 7 + 1; // Adjusting to start with Monday as day 1
+            int dayNumber = ((int)firstDayOfMonth.DayOfWeek + 6) % 7 + 1;
 
             return dayNumber;
         }
@@ -105,6 +103,7 @@ namespace LetsMeet.Models
                 this.DayNumber != 0 &&
                 this.MonthNumber != 0;
         }
+
     }
 
     public class Group

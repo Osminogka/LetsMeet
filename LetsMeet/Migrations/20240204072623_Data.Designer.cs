@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LetsMeet.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231219083548_Data")]
+    [Migration("20240204072623_Data")]
     partial class Data
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
