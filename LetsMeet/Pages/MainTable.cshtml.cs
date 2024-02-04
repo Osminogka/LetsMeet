@@ -156,13 +156,6 @@ namespace LetsMeet.Pages
             return RedirectToPage();
         }
 
-        public async Task<IActionResult> OnPostGetInfoAboutFriendAsync(string arg1)
-        {
-
-
-            return RedirectToPage();
-        }
-
         //LeaveGroup
         public async Task<IActionResult> OnPostLeaveGroupAsync(string groupname)
         {

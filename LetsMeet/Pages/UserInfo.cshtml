@@ -1,0 +1,26 @@
+﻿@page "/userinfo"
+@model UserInfoModel
+
+@{
+    Layout = "_SecondaryLayout.cshtml";
+}
+
+<h1>Selected user: @(Model.SelectedUser)</h1>
+<h1>Record with this user:</h1>
+<div class="container-userinfo">
+    @foreach (var tempRec in Model.RecordsList ?? Enumerable.Empty<Record>())
+    {
+        @if (!Model.RecordsList.Any())
+        {
+            <p>No records with this user</p>
+        }
+        else
+        {
+            <div class="item-userinfo">
+                @{
+                    await Html.RenderPartialAsync($"RecordSummary", tempRec);
+                }
+            </div>
+        }
+    }
+</div>

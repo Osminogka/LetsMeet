@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using LetsMeet.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +52,8 @@ builder.Services.AddSession(options =>
 );
 
 var app = builder.Build();
+
+app.UseHttpsRedirection();
 
 
 app.UseStaticFiles();

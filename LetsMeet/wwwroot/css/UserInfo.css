@@ -1,0 +1,15 @@
+﻿.container-userinfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Adjust the gap between items */
+}
+
+.item-userinfo {
+    flex: 1 0 calc(33.33% - 10px); /* Adjust the width and gap */
+    padding: 20px;
+    box-sizing: border-box;
+    margin: 5px;
+    /* Equal width for all items */
+    flex-basis: calc(33.33% - 10px); /* Adjust based on the number of items */
+    max-width: calc(33.33% - 100px); /* Limit maximum width */
+}
