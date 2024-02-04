@@ -3,6 +3,7 @@ using LetsMeet.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
+using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +51,11 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(20)
     
 );
+
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.HttpsPort = 443;
+});
 
 var app = builder.Build();
 
